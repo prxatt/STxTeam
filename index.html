@@ -96,7 +96,7 @@
             inset: 0;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.8s ease-in-out;
+            transition: opacity 0.4s ease-in-out;
             will-change: opacity, visibility;
             display: flex;
             flex-direction: column;
@@ -156,61 +156,19 @@
             left: 0; 
             width: 100%; 
             padding: 1rem; 
-            display: flex; 
-            flex-direction: column;
-            gap: 0.75rem;
-            justify-content: space-between; 
-            align-items: center; 
             z-index: 100; 
+            pointer-events: none;
             transition: opacity 0.3s ease; 
         }
-        @media (min-width: 768px) {
-            #app-header { 
-                padding: 1.5rem 2rem; 
-                flex-direction: row;
-            }
+        
+        .clickable-card, .team-node, .timeline-card {
+            cursor: pointer;
+            pointer-events: all;
         }
-        #story-progress {
-            display: flex;
-            gap: 4px;
-            width: 100%;
-            max-width: 400px;
-            order: 1;
-        }
-        @media (min-width: 768px) {
-            #story-progress {
-                position: absolute;
-                left: 50%;
-                transform: translateX(-50%);
-                order: 0;
-            }
-        }
-        .progress-bar-container {
-            flex: 1;
-            height: 3px;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        .progress-bar {
-            width: 0;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.7);
-            transition: width 0.3s linear;
-        }
-        .progress-bar-container.active .progress-bar {
-            background-color: white;
-            width: 100%;
-        }
-        .progress-bar-container.viewed .progress-bar {
-            width: 100%;
-        }
-
 
         /* Animation & Interactivity */
         .reveal-item { opacity: 0; transform: translateY(25px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; will-change: opacity, transform; transition-delay: var(--delay, 0s); }
         .slide.active .reveal-item { opacity: 1; transform: translateY(0); }
-        .clickable-card { transition: all 0.3s ease; cursor: pointer; }
         .clickable-card:hover { transform: translateY(-5px) scale(1.02); border-color: var(--emerald); background: rgba(16, 185, 129, 0.05); }
 
         /* Cover Slide & Finale */
@@ -365,8 +323,6 @@
     <div id="app-container">
         <header id="app-header">
             <div id="header-logo" class="text-white font-bold text-lg" style="font-family: 'ivypresto-display', serif;">Surface Tension</div>
-            <div id="story-progress"></div>
-            <div id="slide-indicator" class="text-sm text-gray-400 hidden md:block"></div>
         </header>
 
         <div id="slide-container"></div>
@@ -827,7 +783,12 @@
 
             // --- MAIN APP CLASS ---
             class App {
-                constructor() {
+                constructor(data) {
+                    this.slideData = data.slideData;
+                    this.timelineData = data.timelineData;
+                    this.teamData = data.teamData;
+                    this.taskData = data.taskData;
+                    this.venueHotspotData = data.venueHotspotData;
                     this.currentSlide = 0;
                     this.isAnimating = false;
                     this.activeAnimations = {};
@@ -847,8 +808,6 @@
                         app: document.getElementById('app-container'),
                         header: document.getElementById('app-header'),
                         container: document.getElementById('slide-container'),
-                        progress: document.getElementById('story-progress'),
-                        indicator: document.getElementById('slide-indicator'),
                         modalContainer: document.getElementById('modal-container'),
                         modalTitle: document.getElementById('modal-title'),
                         modalBody: document.getElementById('modal-body'),
@@ -857,7 +816,7 @@
                 }
                 renderSlides() {
                     if (!this.dom.container) return;
-                    const slidesHtml = slideData.map((data, index) => {
+                    const slidesHtml = this.slideData.map((data, index) => {
                         const isPinterestSlide = data.id === 'posters' || data.id === 'lighting';
                         const wrapperClass = isPinterestSlide ? '' : 'slide-content-wrapper';
                         
@@ -900,7 +859,7 @@
                      const fragment = document.createDocumentFragment();
                      const bar = document.createElement('div');
                      bar.className = 'timeline-bar';
-                     bar.innerHTML = timelineData.map((item, index) => `
+                     bar.innerHTML = this.timelineData.map((item, index) => `
                         <div class="timeline-card" data-index="${index}">
                             <div class="time-indicator" style="color:${item.color}">${item.time}</div>
                             <div class="title-indicator">${item.title}</div>
@@ -921,7 +880,7 @@
                     const teamLayout = { pratt: { pos: { x: 40, y: 15 }, tier: 'leadership' }, diana: { pos: { x: 60, y: 15 }, tier: 'leadership' }, riley: { pos: { x: 50, y: 35 }, tier: 'leadership' }, zoe: { pos: { x: 78, y: 22 }, tier: 'creative' }, vixaa: { pos: { x: 50, y: 60 }, tier: 'performance' }, auguste: { pos: { x: 20, y: 35 }, tier: 'creative' }, lorenzo: { pos: { x: 80, y: 45 }, tier: 'creative' }, bill:  { pos: { x: 20, y: 60 }, tier: 'curation' }, nate:  { pos: { x: 80, y: 70 }, tier: 'community' }, waseem:{ pos: { x: 35, y: 85 }, tier: 'community' }, ivan:  { pos: { x: 65, y: 85 }, tier: 'community' } };
                     this.nodePositions = {};
                     
-                    teamData.forEach((member, i) => {
+                    this.teamData.forEach((member, i) => {
                         if (teamLayout[member.id]) {
                             const { pos, tier } = teamLayout[member.id];
                             this.nodePositions[member.id] = pos;
@@ -975,7 +934,7 @@
                 renderTaskPlanner(container) {
                     if(!container) return;
                     const ownerColors = { pratt: 'var(--emerald)', diana: 'var(--purple)', riley: 'var(--yellow)', vixaa: 'var(--teal)', lorenzo: 'var(--teal)', zoe: 'var(--teal)', waseem:'var(--teal)', nate:'var(--teal)',ivan:'var(--teal)', bill: 'var(--teal)', auguste: 'var(--teal)' };
-                    container.innerHTML = `<div class="task-planner-grid">${taskData.map(phase => `
+                    container.innerHTML = `<div class="task-planner-grid">${this.taskData.map(phase => `
                         <div class="task-phase-block reveal-item">
                             <h3 class="sub-heading text-base text-purple-400 mb-4">${phase.phase}</h3>
                             <div class="space-y-1">${phase.tasks.map(task => `
@@ -989,7 +948,7 @@
                 renderVenueHotspots(container) {
                     if(!container) return;
                     const fragment = document.createDocumentFragment();
-                    Object.entries(venueHotspotData).forEach(([key, data]) => {
+                    Object.entries(this.venueHotspotData).forEach(([key, data]) => {
                         const hotspot = document.createElement('div');
                         hotspot.className = 'venue-hotspot clickable-card';
                         hotspot.dataset.area = key;
@@ -1062,7 +1021,7 @@
                     
                     const paths = circuitBoard.querySelectorAll(`.circuit-path[data-from="${memberId}"], .circuit-path[data-to="${memberId}"]`);
                     const dataFlows = circuitBoard.querySelectorAll(`.data-flow[data-from="${memberId}"], .data-flow[data-to="${memberId}"]`);
-                    const memberData = teamData.find(m => m.id === memberId);
+                    const memberData = this.teamData.find(m => m.id === memberId);
                     
                     if(memberData) {
                         paths.forEach(p => {
@@ -1085,7 +1044,7 @@
                 }
 
                 goTo(index, isInitial = false) {
-                    if (this.isAnimating || (index >= slideData.length) || (index < 0) || (index === this.currentSlide && !isInitial)) return;
+                    if (this.isAnimating || (index >= this.slideData.length) || (index < 0) || (index === this.currentSlide && !isInitial)) return;
                     this.isAnimating = true;
                     
                     if (this.activeAnimations[this.currentSlide]) {
@@ -1102,7 +1061,7 @@
                     this.initAnimationForSlide(this.currentSlide);
                     this.updateUI();
 
-                    if ((slideData[this.currentSlide].id === 'posters' || slideData[this.currentSlide].id === 'lighting')) {
+                    if ((this.slideData[this.currentSlide].id === 'posters' || this.slideData[this.currentSlide].id === 'lighting')) {
                         setTimeout(() => {
                             if (typeof window.PinUtils !== 'undefined') {
                                 window.PinUtils.build();
@@ -1115,7 +1074,7 @@
                         if (isInitial) {
                             document.body.classList.add('loaded');
                         }
-                    }, 800);
+                    }, 400);
                 }
                 next() { this.goTo((this.currentSlide + 1)); }
                 prev() { this.goTo((this.currentSlide - 1)); }
@@ -1128,21 +1087,10 @@
                     if (e.key === 'ArrowLeft') this.prev();
                 }
                 updateUI() {
-                    this.dom.indicator.textContent = `${String(this.currentSlide + 1).padStart(2, '0')} / ${slideData.length}`;
-                    
-                    // Update progress bars
-                    this.dom.progress.innerHTML = slideData.map((_, index) => {
-                        let stateClass = '';
-                        if (index < this.currentSlide) {
-                            stateClass = 'viewed';
-                        } else if (index === this.currentSlide) {
-                            stateClass = 'active';
-                        }
-                        return `<div class="progress-bar-container ${stateClass}"><div class="progress-bar"></div></div>`;
-                    }).join('');
-
-                    const isFirstOrLast = this.currentSlide === 0 || this.currentSlide === slideData.length - 1;
-                    this.dom.header.style.opacity = isFirstOrLast ? '0' : '1';
+                    const isFirstOrLast = this.currentSlide === 0 || this.currentSlide === this.slideData.length - 1;
+                    if (this.dom.header) {
+                        this.dom.header.style.opacity = isFirstOrLast ? '0' : '1';
+                    }
                 }
                 initAnimationForSlide(index) {
                      if (this.activeAnimations[index]) {
@@ -1150,7 +1098,7 @@
                         this.activeAnimations[index].setActive(true);
                         return;
                      }
-                     const slideId = slideData[index]?.id;
+                     const slideId = this.slideData[index]?.id;
                      const canvas = this.slides[index].querySelector('canvas');
                      if (!canvas) return;
                      const AnimationClass = { 'cover': CoverAnimation, 'philosophy': PhilosophyAnimation, 'experience': RippleAnimation, 'final': FinaleAnimation }[slideId];
@@ -1160,7 +1108,7 @@
                      }
                 }
                 showTeamModal(memberId) {
-                    const data = teamData.find(m => m.id === memberId);
+                    const data = this.teamData.find(m => m.id === memberId);
                     if (!data) return;
                     this.dom.modalTitle.innerHTML = `<span style="color:${data.color};">${data.name}</span>`;
                     const tasksHtml = (data.tasks || []).map(task => `
@@ -1176,4 +1124,53 @@
                             </div>
                             <div>
                                 <h4 class="font-semibold text-base text-gray-300 mb-2">Growth Trajectory</h4>
-                                <p class="text-gray-400">${data.trajectory}<
+                                <p class="text-gray-400">${data.trajectory}</p>
+                            </div>
+                            ${tasksHtml ? `<div class="lg:col-span-2">
+                                <h4 class="font-semibold text-base text-gray-300 mb-3 border-t border-gray-800 pt-4">Key Event Tasks</h4>
+                                <ul class="space-y-2">${tasksHtml}</ul>
+                            </div>` : ''}
+                        </div>`;
+                    this.dom.modalContainer.classList.add('visible');
+                }
+                showTaskModal(taskId) {
+                    const task = this.taskData.flatMap(p => p.tasks).find(t => String(t.id) === taskId);
+                    if (!task) return;
+                    const ownerData = this.teamData.find(m => m.id === task.owner);
+                    this.dom.modalTitle.innerHTML = `<span style="color:${ownerData ? ownerData.color : 'white'};">${task.title}</span>`;
+                    this.dom.modalBody.innerHTML = `<div class="space-y-6 body-text text-sm"><div><h4 class="font-semibold text-base text-gray-300 mb-1">Description</h4><p class="text-gray-400">${task.desc || 'Details to be added.'}</p></div><div><h4 class="font-semibold text-base text-gray-300 mb-1">Execution Plan</h4><p class="text-gray-400">${task.plan || 'Plan to be added.'}</p></div><div><h4 class="font-semibold text-base text-gray-300 mb-1">Comments</h4><textarea class="w-full bg-gray-900/50 rounded p-2 text-sm border border-gray-700" rows="3" placeholder="Add comments here..."></textarea></div></div>`;
+                    this.dom.modalContainer.classList.add('visible');
+                }
+                showTimelineModal(index) {
+                    const data = this.timelineData[index];
+                    if (!data) return;
+                    this.dom.modalTitle.innerHTML = `<span style="color:${data.color};">${data.title}</span> <span class="text-gray-400 font-sans text-lg ml-4">${data.time}</span>`;
+                    this.dom.modalBody.innerHTML = `
+                        <div class="body-text space-y-6">
+                           <p>${data.description}</p>
+                           <div class="border-t border-gray-800 pt-6 space-y-4">
+                                <div><h5 class="sub-heading text-sm text-purple-400 mb-1">Guest Experience & Flow</h5><p class="text-sm">${data.tasks.guestExperience}</p></div>
+                                <div><h5 class="sub-heading text-sm text-emerald-400 mb-1">Sonic Architecture</h5><p class="text-sm">${data.tasks.sonic}</p></div>
+                                <div><h5 class="sub-heading text-sm text-yellow-400 mb-1">Operations & Logistics</h5><p class="text-sm">${data.tasks.operations}</p></div>
+                           </div>
+                        </div>`;
+                    this.dom.modalContainer.classList.add('visible');
+                }
+                showVenueModal(areaId) {
+                    const data = this.venueHotspotData[areaId];
+                    if (!data) return;
+                    this.dom.modalTitle.innerHTML = `<span style="color:${data.color};">${data.title}</span>`;
+                    this.dom.modalBody.innerHTML = `<p class="body-text">${data.text}</p>`;
+                    this.dom.modalContainer.classList.add('visible');
+                }
+                hideModal() {
+                    this.dom.modalContainer.classList.remove('visible');
+                    setTimeout(() => { this.dom.modalBody.innerHTML = ''; }, 400);
+                }
+            }
+            
+            new App({ slideData, timelineData, teamData, taskData, venueHotspotData });
+        });
+    </script>
+</body>
+</html>
