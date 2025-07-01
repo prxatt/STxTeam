@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- IMPORTANT: For Vercel deployment, rename this file to "index.html" to resolve the 404 error. -->
+    <title>Surface Tension: Team Deck</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://use.typekit.net/crp5oma.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #0A0A0A;
+            --text-primary: rgba(243, 244, 246, 1);
+            --text-secondary: rgba(209, 213, 219, 0.85);
+            --border-color: rgba(255, 255, 255, 0.15);
+            --emerald: #10b981;
+            --purple: #a855f7;
+            --teal: #06b6d4;
+            --yellow: #f59e0b;
+            --coffee: #6F4E37;
+        }
+        html, body {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-primary);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background-color: var(--bg-primary);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s ease-out 0.5s;
+        }
+        #preloader .enso-container {
+            width: 80px;
+            height: 80px;
+        }
+        #preloader .enso-path {
+            stroke: var(--text-secondary);
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 252;
+            stroke-dashoffset: 252;
+            animation: draw-enso 2.5s ease-in-out infinite;
+        }
+        @keyframes draw-enso {
+            0% { stroke-dashoffset: 252; }
+            50% { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: -252; }
+        }
+        #preloader .loading-text {
+            color: var(--text-secondary);
+            font-family: "ivypresto-display", serif;
+            font-size: 1rem;
+            margin-top: 1.5rem;
+            letter-spacing: 0.1em;
+            text-transform: lowercase;
+            animation: pulse-text 2.5s ease-in-out infinite;
+        }
+        @keyframes pulse-text {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        body.loaded #preloader {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #app-container { 
+            width: 100%; 
+            height: 100%; 
+            position: relative;
+            opacity: 0;
+            transition: opacity 0.6s ease-in 0.8s;
+        }
+        body.loaded #app-container {
+            opacity: 1;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease-in-out;
+            will-change: opacity, visibility;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            box-sizing: border-box;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--emerald) transparent;
+        }
+        .slide.active { opacity: 1; visibility: visible; z-index: 10; }
+        .slide-content-wrapper { 
+            width: 100%; 
+            max-width: 1100px; 
+            position: relative; 
+            z-index: 2;
+            padding: 6rem 2rem 8rem;
+        }
+        .slide-content-wrapper.full-width {
+            max-width: none;
+        }
+        
+        .slide-background { 
+            position: absolute;
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: 0; 
+            pointer-events: none; 
+            opacity: 0.25;
+        }
+        
+        /* Typography */
+        .display-heading { font-family: "ivypresto-display", serif; font-size: clamp(3.5rem, 8vw, 6rem); font-weight: 300; line-height: 1.1; letter-spacing: 0.01em; text-shadow: 0 0 20px rgba(255,255,255,0.1); }
+        .section-heading { font-family: "ivypresto-display", serif; font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 300; line-height: 1.2; text-align: center; margin-bottom: 2.5rem; }
+        .sub-heading { font-family: "ivypresto-display", serif; font-size: clamp(1.6rem, 2.8vw, 2.2rem); font-weight: 300; line-height: 1.3; }
+        .body-text { font-size: clamp(1rem, 1.3vw, 1.1rem); line-height: 1.9; font-weight: 400; color: var(--text-secondary); max-width: 750px; }
+        .card { background: rgba(10, 14, 26, 0.7); border: 1px solid var(--border-color); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 1rem; padding: 2.5rem; will-change: transform, border-color, background; }
+
+        /* Header & Navigation */
+        #app-header { position: fixed; top: 0; left: 0; width: 100%; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; z-index: 100; transition: opacity 0.3s ease; }
+        #navigation { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 1rem; background-color: rgba(10,14,26,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 99px; z-index: 100; }
+        .nav-dot { width: 8px; height: 8px; background-color: rgba(255,255,255,0.3); border-radius: 50%; cursor: pointer; transition: all 0.3s ease; }
+        .nav-dot.active { background-color: var(--emerald); box-shadow: 0 0 5px var(--emerald); transform: scale(1.2); }
+
+        /* Animation & Interactivity */
+        .reveal-item { opacity: 0; transform: translateY(25px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; will-change: opacity, transform; transition-delay: var(--delay, 0s); }
+        .slide.active .reveal-item { opacity: 1; transform: translateY(0); }
+        .clickable-card { transition: all 0.3s ease; cursor: pointer; }
+        .clickable-card:hover { transform: translateY(-5px) scale(1.02); border-color: var(--emerald); background: rgba(16, 185, 129, 0.05); }
+
+        /* Cover Slide & Finale */
+        .fullscreen-canvas { 
+            position: absolute; 
+            inset: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: 0;
+            pointer-events: none;
+        }
+        #slide-0, #slide-10 { padding: 0; height: 100vh; box-sizing: border-box;}
+        #slide-0 .slide-content-wrapper { display: flex; flex-direction: column; height: 100%; padding: 0 2rem; }
+        #slide-0 .bottom-content { padding-bottom: 5rem; } 
+        #slide-10 .slide-content-wrapper { justify-content: center; align-items: center; height: 100%; padding: 0;}
+        .gradient-text { background: linear-gradient(to right, #6EE7B7, #A78BFA); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* Modal */
+        #modal-container { position: fixed; inset: 0; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+        #modal-container.visible { opacity: 1; pointer-events: all; }
+        #modal-content { background-color: var(--bg-secondary); border: 1px solid var(--border-color); width: 90%; height: 90%; max-width: 800px; border-radius: 1rem; display: flex; flex-direction: column; transform: scale(0.95); transition: transform 0.4s ease; }
+        #modal-container.visible #modal-content { transform: scale(1); }
+        #modal-header { padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        #modal-close-btn { background: none; border: none; color: var(--text-secondary); font-size: 2rem; cursor: pointer; padding: 0.5rem 1rem; }
+        #modal-body { flex-grow: 1; overflow-y: auto; padding: 2rem; }
+        
+        /* Interactive Timeline */
+        .timeline-bar { display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 1rem; border: 1px solid var(--border-color); }
+        .timeline-card { position: relative; flex: 1; text-align: center; padding: 1rem 0.5rem; border-radius: 0.75rem; cursor: pointer; transition: background-color 0.3s ease; }
+        .timeline-card:hover { background-color: rgba(255,255,255,0.1); }
+        .timeline-card .time-indicator { font-family: "ivypresto-display", serif; font-size: 1.25rem; }
+        .timeline-card .title-indicator { font-size: 0.75rem; color: var(--text-secondary); letter-spacing: 0.05em; text-transform: uppercase; }
+        .timeline-card-details { display: none; }
+
+        /* Flicker Animation */
+        @keyframes flicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% {
+                text-shadow: 0 0 4px var(--purple), 0 0 11px var(--purple), 0 0 19px var(--purple), 0 0 40px var(--purple), 0 0 80px var(--purple);
+                opacity: 1;
+            }
+            20%, 24%, 55% { text-shadow: none; opacity: 0.8; }
+        }
+        .flicker-purple { color: var(--purple); animation: flicker 1.5s infinite alternate; }
+        
+        /* === TEAM SLIDE (NEURAL NEXUS) STYLES === */
+        #circuit-board-container { position: relative; width: 100%; max-width: 1100px; margin: auto; height: 700px; }
+        #circuit-background { position: absolute; inset: 0; z-index: 0; }
+        #circuit-background::before { content: ''; position: absolute; top: 15%; left: 50%; width: 1px; height: 1px; border-radius: 50%; transform: translate(-50%, -50%); animation: pulse-background 5s infinite ease-out; }
+        @keyframes pulse-background {
+            0% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.2), 0 0 0 0 rgba(16, 185, 129, 0.2); opacity: 0.5; }
+            80% { box-shadow: 0 0 60px 400px rgba(168, 85, 247, 0), 0 0 60px 400px rgba(16, 185, 129, 0); opacity: 0; }
+            100% { opacity: 0; }
+        }
+        #circuit-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        .circuit-path {
+            stroke: #4A5568; stroke-width: 0.2; fill: none;
+            stroke-dasharray: 1000; stroke-dashoffset: 1000;
+            animation: draw-line 2s ease-out forwards;
+            transition: stroke 0.4s ease;
+        }
+        .data-flow {
+            stroke: #A855F7; stroke-width: 0.3; fill: none;
+            opacity: 0;
+            stroke-dasharray: 4 8; stroke-dashoffset: 12;
+            transition: stroke 0.4s ease, opacity 0.4s ease;
+        }
+        .team-node {
+            position: absolute; z-index: 2; width: 150px; text-align: center; padding: 1rem;
+            transform: translate(-50%, -50%);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .team-node.is-active, .team-node:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 0 20px var(--shadow-color, rgba(255,255,255,0.3)), 0 0 30px var(--shadow-color, rgba(255,255,255,0.2));
+        }
+        .circuit-path.is-active {
+            stroke: var(--active-color, #fff);
+        }
+        .data-flow.is-active {
+            opacity: 1;
+            stroke: var(--active-color, #fff);
+            animation: move-dashes 2s linear infinite;
+        }
+        @keyframes draw-line { to { stroke-dashoffset: 0; } }
+        @keyframes move-dashes { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
+
+        /* Pinterest Embed Styles */
+        .pinterest-embed-wrapper {
+            padding: 6rem 2rem;
+            height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .pinterest-embed-container {
+            width: 100%;
+            height: 100%;
+            max-width: 1200px;
+        }
+        
+        /* Projection Slide Specific */
+        .projection-link {
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+        .projection-link:hover {
+            color: var(--text-primary);
+        }
+        .projection-link.active {
+            color: var(--emerald);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div id="preloader">
+        <div class="enso-container">
+            <svg viewBox="0 0 80 80">
+                <path class="enso-path" d="M 40, 10 a 30,30 0 1,1 0,60 a 30,30 0 1,1 0,-60"/>
+            </svg>
+        </div>
+        <div class="loading-text">loading consciousness</div>
+    </div>
+
+    <div id="app-container">
+        <header id="app-header">
+            <div id="header-logo" class="text-white font-bold text-lg" style="font-family: 'ivypresto-display', serif;">Surface Tension</div>
+            <div id="slide-indicator" class="text-sm text-gray-400"></div>
+        </header>
+
+        <div id="slide-container"></div>
+
+        <nav id="navigation">
+            <div id="nav-dots" class="flex gap-3 items-center"></div>
+        </nav>
+    </div>
+    
+    <div id="modal-container">
+        <div id="modal-content">
+            <header id="modal-header">
+                <h3 id="modal-title" class="sub-heading"></h3>
+                <button id="modal-close-btn">&times;</button>
+            </header>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script async defer src="//assets.pinterest.com/js/pinit.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const slideData = [
+                { 
+                    id: 'cover', 
+                    background: `<canvas id="cover-canvas" class="fullscreen-canvas"></canvas>`,
+                    content: `<div class="slide-content-wrapper">
+                                <div class="flex-grow flex flex-col items-center justify-center text-center">
+                                    <div class="reveal-item">
+                                        <h1 class="display-heading uppercase">SURFACE TENSION</h1>
+                                    </div>
+                                    <div class="reveal-item" style="--delay: 0.2s;">
+                                        <p class="body-text text-center mt-6 text-lg">DIGITAL DRIP x SEXTANT COFFEE ROASTERS</p>
+                                    </div>
+                                </div>
+                                <div class="w-full text-center bottom-content reveal-item" style="--delay: 0.4s;">
+                                    <p class="body-text text-base text-gray-400 inline-block">
+                                        <a href="https://www.google.com/calendar/render?action=TEMPLATE&text=Surface+Tension&dates=20250727T000000Z/20250727T050000Z&details=Digital+Drip+x+Sextant+Coffee+Roasters&location=Sextant+Coffee+Roasters%2C+539+Valencia+St%2C+San+Francisco%2C+CA" target="_blank" class="text-emerald-400 font-semibold hover:text-emerald-300 transition-colors">July 26, 2025</a>
+                                        <span class="mx-2 text-gray-600">•</span>feat. 
+                                        <a href="https://soundcloud.com/vixa-2/popular-tracks" target="_blank" class="flicker-purple font-semibold">DJ Vixxa</a>
+                                    </p>
+                                </div>
+                              </div>` 
+                },
+                { id: 'philosophy', title: 'The Portal Philosophy', background: `<canvas id="philosophy-canvas" class="slide-background"></canvas>`, content: `<div class="text-center space-y-12"><div class="reveal-item"><p class="sub-heading italic font-light text-gray-200 mx-auto max-w-3xl leading-relaxed" style="font-size: clamp(1.5rem, 2.5vw, 1.8rem);">We don't create events; we craft membranes between the known and the possible. Temporary zones where stillness finds its frequency, and authentic connection is the current.</p></div><div class="grid md:grid-cols-3 gap-8 text-left"><div class="card reveal-item" style="--delay: 0.2s;"><h3 class="sub-heading text-purple-400 mb-4">Cultural Opportunity</h3><ul class="body-text text-sm space-y-3 list-disc list-inside"><li><strong>Experience Dividend:</strong> 78% of millennials in SF prioritize unique experiences.</li><li><strong>Third Space Vacuum:</strong> 65% of professionals seek social hubs beyond home/office.</li><li><strong>Intentional Nightlife:</strong> 45% of consumers seek non-alcoholic-centric nightlife.</li></ul></div><div class="card reveal-item" style="--delay: 0.4s;"><h3 class="sub-heading text-emerald-400 mb-4">Curated Solution</h3><ul class="body-text text-sm space-y-3 list-disc list-inside"><li><strong>Engineered Serendipity:</strong> Environments designed for authentic connection.</li><li><strong>High-Fidelity Sonics:</strong> A meticulously calibrated audio journey is the narrative.</li><li><strong>Hub for Creative Class:</strong> A signal for those who desire transformation.</li></ul></div><div class="card reveal-item" style="--delay: 0.6s;"><h3 class="sub-heading text-teal-400 mb-4">Sensory Architecture</h3><ul class="body-text text-sm space-y-3 list-disc list-inside"><li><strong>Calibrated Sonics:</strong> Non-fatiguing, physically-felt sound bath.</li><li><strong>Intentional Ambience:</strong> Minimizing digital distractions.</li><li><strong>Narrative Journey:</strong> A planned progression of sound and light.</li></ul></div></div><p class="text-right text-xs text-gray-500 mt-4 reveal-item" style="--delay: 0.8s;">(Sources: Harris Group 2024, SF Chamber of Commerce 2025, NielsenIQ 2025)</p></div>` },
+                { id: 'experience', title: 'The Digital Drip Experience', background: `<canvas id="ripple-canvas" class="slide-background" style="opacity: 0.5;"></canvas>`, content: `<div class="text-center reveal-item"><p class="body-text mx-auto">A meticulously crafted sensory narrative, architected to guide attendees from a state of arrival to transcendence. This is a turnkey activation that transforms Sextant into an evening cultural hotspot.</p></div><div id="interactive-timeline-container" class="w-full mt-12 reveal-item" style="--delay: 0.2s;"></div>` },
+                { id: 'venue', title: 'Venue Intelligence', content: `<div class="text-center reveal-item"><p class="body-text mx-auto">Sextant Coffee at <a href="https://maps.google.com/?q=539+Valencia+St,+San+Francisco,+CA" target="_blank" class="text-teal-400 hover:underline">539 Valencia St</a> is more than a location; it's a cultural anchor. Positioned at the nexus of the Mission's creative and culinary scenes, it provides an authentic foundation to engage San Francisco's most discerning demographic.</p></div><div class="grid lg:grid-cols-2 gap-8 mt-12 items-center"><div id="interactive-venue-layout" class="reveal-item" style="--delay: 0.2s;">
+                    <svg id="venue-blueprint" viewBox="0 0 800 450" class="bg-black/20 rounded-lg border border-gray-800">
+                        <!-- Main Walls -->
+                        <path d="M40 40 L760 40 L760 410 L40 410 Z" stroke="rgba(255,255,255,0.2)" stroke-width="4" fill="none"/>
+                        <path d="M40 40 L760 40 L760 410 L40 410 Z" stroke="rgba(255,255,255,0.4)" stroke-width="1" fill="none"/>
+                        
+                        <!-- L-Shape Bar (Rotated 90deg anti-clockwise) -->
+                        <path d="M42 42 V 250 H 70 V 70 H 250 V 42 Z" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+                        
+                        <!-- Entrance -->
+                        <path d="M650 410 V 360" stroke-width="8" stroke-linecap="round" stroke="var(--bg-secondary)"/>
+                        <text x="650" y="340" font-family="Inter" font-size="14" fill="rgba(255,255,255,0.4)" text-anchor="middle">ENTRANCE</text>
+
+                        <!-- Dance Floor -->
+                        <text x="450" y="250" font-family="ivypresto-display" font-size="32" fill="rgba(255,255,255,0.2)" text-anchor="middle" letter-spacing="3">DANCE FLOOR</text>
+                    </svg>
+                    <div id="hotspots-container"></div>
+                </div><div class="card reveal-item" style="--delay: 0.4s;"><h3 class="sub-heading text-emerald-400 mb-4">Strategic Advantages</h3><ul class="body-text text-sm space-y-3 list-disc list-inside"><li><strong>Narrative Authenticity:</strong> Sextant's Ethiopian coffee heritage offers a unique, defensible brand story.</li><li><strong>Spatial Efficiency:</strong> The L-shaped bar is operationally ideal for a DJ booth and managing flow.</li><li><strong>High-Value Accessibility:</strong> Steps from 16th St BART, removing friction for attendance.</li></ul><h3 class="sub-heading text-purple-400 my-4 pt-4 border-t border-gray-800">Target Demographics Profile</h3><ul class="body-text text-sm space-y-3 list-disc list-inside"><li><strong>Concentrated Audience:</strong> 32,000+ residents aged 25-44 in the Mission, with a median household income of $175k.</li><li><strong>Experience Spenders:</strong> This group allocates ~20% of discretionary income to experiences.</li><li><strong>Digital Natives:</strong> Hyper-connected and active in niche digital communities.</li></ul></div></div>` },
+                { id: 'team', title: 'Neural Nexus Activation', content: `<div id="circuit-background"></div><div class="slide-content-wrapper"><div class="text-center reveal-item"><p class="body-text mx-auto">This team is the engine. Each member is a critical node in a network designed for high-fidelity execution. Click a node to explore their function and growth trajectory within the Surface Tension ecosystem.</p></div><div id="circuit-board-container" class="mt-12 reveal-item" style="--delay: 0.2s;"></div></div>` },
+                { id: 'tasks', title: 'Task Harmonics & Flow', content: `<div class="text-center reveal-item"><p class="body-text mx-auto">This is our detailed operational roadmap. This plan is designed for clarity and accountability. For granular, real-time status updates, we will use our shared <a href="https://www.notion.so" target="_blank" class="text-teal-400 hover:underline">Notion database</a>.</p></div><div id="task-planner" class="mt-12 space-y-8"></div>` },
+                { 
+                    id: 'posters', 
+                    title: 'Poster Manifestation', 
+                    content: `<div class="pinterest-embed-wrapper reveal-item"><div class="pinterest-embed-container"><a data-pin-do="embedBoard" data-pin-scale-height="800" data-pin-board-width="100%" href="https://www.pinterest.com/temapcy/surface-tension/digital-drip-posters/"></a></div></div>` 
+                },
+                { 
+                    id: 'lighting', 
+                    title: 'Luminance Codex', 
+                    content: `<div class="pinterest-embed-wrapper reveal-item"><div class="pinterest-embed-container"><a data-pin-do="embedBoard" data-pin-scale-height="800" data-pin-board-width="100%" href="https://www.pinterest.com/temapcy/surface-tension/digital-drip-lighting/"></a></div></div>` 
+                },
+                { 
+                    id: 'projections', 
+                    title: 'Projection Consciousness', 
+                    content: `<div class="text-center reveal-item"><p class="body-text mx-auto mb-8">Projections are our dynamic canvas. Select a reference from the catalog to view it in the player.</p></div>
+                    <div class="grid lg:grid-cols-5 gap-x-8 gap-y-6 text-sm body-text reveal-item" style="--delay: 0.2s; max-width: 1400px; margin: auto;">
+                        <!-- Video Player Column -->
+                        <div class="w-full aspect-video rounded-lg overflow-hidden bg-black border border-gray-800 lg:col-span-3">
+                           <iframe id="projection-player" class="w-full h-full" src="https://www.youtube.com/embed/kHtL3eiDMbQ?autoplay=1&loop=1&playlist=kHtL3eiDMbQ&controls=0&showinfo=0&modestbranding=1&rel=0" title="Projection Reference Player" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+                        </div>
+
+                        <!-- Links Column -->
+                        <div id="projection-links-container" class="space-y-6 overflow-y-auto lg:col-span-2" style="max-height: 50vh;">
+                            <div class="space-y-3">
+                                <h4 class="font-semibold text-base text-emerald-400 border-b border-emerald-400/30 pb-2">Glass Facade & Pro Studios</h4>
+                                <ul class="space-y-2 pl-2">
+                                    <li><a href="#" class="projection-link active" data-video-id="kHtL3eiDMbQ" data-source="youtube">teamLab Borderless - Glass Projections</a></li>
+                                    <li><a href="#" class="projection-link" data-video-id="451394363" data-source="vimeo">Refik Anadol - Data Sculptures on Glass</a></li>
+                                    <li><a href="#" class="projection-link" data-video-id="185842073" data-source="vimeo">Daily tous les jours - Interactive Projections</a></li>
+                                </ul>
+                            </div>
+                             <div class="space-y-3">
+                                <h4 class="font-semibold text-base text-emerald-400 border-b border-emerald-400/30 pb-2">Coffee Shop & Retail</h4>
+                                <ul class="space-y-2 pl-2">
+                                    <li><a href="#" class="projection-link" data-video-id="dQw4w9WgXcQ" data-source="youtube">Starbucks Reserve Roastery Projections</a></li>
+                                    <li><a href="#" class="projection-link" data-video-id="FvHZHbdZA-0" data-source="youtube">Nike Store Projection Mapping</a></li>
+                                    <li><a href="#" class="projection-link" data-video-id="312847593" data-source="vimeo">Coffee Shop Window Projections</a></li>
+                                </ul>
+                            </div>
+                            <div class="space-y-3">
+                                <h4 class="font-semibold text-base text-purple-400 border-b border-purple-400/30 pb-2">Particle & Constellation Systems</h4>
+                                 <ul class="space-y-2 pl-2">
+                                    <li><a href="#" class="projection-link" data-video-id="167384387" data-source="vimeo">Andreas Nicolas Fischer - Particle Flows</a></li>
+                                    <li><a href="#" class="projection-link" data-video-id="351802448" data-source="vimeo">Zach Lieberman - Interactive Particles</a></li>
+                                    <li><a href="#" class="projection-link" data-video-id="vlUR09yRHZU" data-source="youtube">Constellation Projection Mapping</a></li>
+                                     <li><a href="#" class="projection-link" data-video-id="248392847" data-source="vimeo">LED Constellation Ceiling</a></li>
+                                </ul>
+                            </div>
+                            <div class="space-y-3">
+                                <h4 class="font-semibold text-base text-purple-400 border-b border-purple-400/30 pb-2">Atmospheric & Technical</h4>
+                                <ul class="space-y-2 pl-2">
+                                    <li><a href="#" class="projection-link" data-video-id="eKFTSSKCzWA" data-source="youtube">Projection + Haze Effects</a></li>
+                                    <li><a href="#" class="projection-link" data-video-id="189919038" data-source="vimeo">Casey Reas - Fluid Simulations</a></li>
+                                    <li><a href="#" class="projection-link" data-video-id="158842905" data-source="vimeo">Memo Akten - Fluid Dynamics</a></li>
+                                    <li><a href="#" class="projection-link" data-video-id="qxUHWe16oLI" data-source="youtube">DIY Projection Mapping Tutorial</a></li>
+                                    <li><a href="#" class="projection-link" data-video-id="437382957" data-source="vimeo">TouchDesigner Reactive Projections</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>` 
+                },
+                { 
+                    id: 'final', 
+                    background: `<canvas id="finale-canvas" class="fullscreen-canvas"></canvas>`,
+                    content: `<div class="absolute inset-0 flex flex-col items-center justify-center text-center reveal-item"><h2 class="section-heading">in stillness, depth</h2><div class="mt-8 text-lg"><a href="https://surfacetension.co" target="_blank" class="text-teal-400 hover:underline">surfacetension.co</a><span class="mx-4 text-gray-600">•</span><a href="#" class="text-teal-400 hover:underline">Experience Preview</a></div></div>` 
+                },
+            ];
+            const timelineData = [
+                { time: '5:00 PM', title: 'Portal Opening', color: 'var(--teal)', description: 'Art & Community Showcase. Ambient textures, coffee & botanicals scent. Cold Coffee Creations served.', tasks: { guestExperience: 'Waseem manages guest list & Luma check-in. Nate greets guests, guides them to the art, and facilitates initial connections.', sonic: 'DJ Vixxa starts with low-key, ambient soundscapes (Texture Set 1). Volume at ~65dB. Pratt monitors vibe.', operations: 'Lorenzo ensures lighting is set to "Arrival" phase (warm, static). Bar serves Cold Coffee Creations only.' } },
+                { time: '6:00 PM', title: 'Signature Service', color: 'var(--teal)', description: 'The bar opens for our signature zero-proof cocktail menu. A moment to transition and mingle.', tasks: { guestExperience: 'Nate subtly informs guests that the full menu is available. Waseem monitors entry flow, ensuring no bottleneck.', sonic: 'Music remains ambient, but with slightly more rhythmic undertones introduced.', operations: 'Bar staff begins serving the full signature menu. Riley checks inventory.' } },
+                { time: '6:30 PM', title: 'Sonic Transition', color: 'var(--purple)', description: 'Energy subtly shifts as ambient sounds blend into the opening DJ rhythms.', tasks: { guestExperience: 'Nate encourages movement towards the main space. Check that seating areas are clear for dancing.', sonic: 'DJ Vixxa begins blending ambient textures into deep house (Transition Set). Tempo ~118 BPM. Volume slowly increases to ~75dB.', operations: 'Lorenzo initiates "Elevation" lighting phase, introducing subtle color washes synced to the new rhythm.' } },
+                { time: '8:15 PM', title: 'Peak Resonance', color: 'var(--purple)', description: 'The main DJ rave showcase reaches its zenith. Hypnotic house & techno with dynamic visuals.', tasks: { guestExperience: 'Nate & Ivan monitor crowd energy, ensuring safety and comfort. Capture key content moments.', sonic: 'DJ Vixxa is in the core of the main set. Tempo ~124 BPM. Volume at peak ~85dB. Full audio-visual synesthesia.', operations: 'Auguste manages live, audio-reactive projections. Lorenzo operates dynamic lighting cues. Bar is fully operational.' } },
+                { time: '9:30 PM', title: 'Harmonic Descent', color: 'var(--emerald)', description: 'Music gracefully tapers, allowing for reflection as crowds begin to disperse.', tasks: { guestExperience: 'Nate thanks departing guests and gathers anecdotal feedback. Waseem prepares for smooth exit flow.', sonic: 'DJ Vixxa transitions to a cool-down set (Downtempo / Ambient Techno). Volume decreases gradually.', operations: 'Lighting shifts to "Descent" phase, returning to warm, static washes. Bar begins last call.' } },
+                { time: '10:00 PM', title: 'Load Out', color: 'var(--text-secondary)', description: 'Event concludes. Venue load-out begins.', tasks: { guestExperience: 'Final guest sweep. All team members assist with initial clean-up.', sonic: 'House music off. A/V equipment breakdown begins.', operations: 'Riley manages vendor load-out. Lorenzo & Auguste break down their equipment. Full team effort on reset.' } },
+            ];
+            const teamData = [
+                { id: 'pratt', name: 'Pratt Majmudar', role: 'CEO & Creative Director', color: 'var(--emerald)', duties: "Drives the overall vision and strategy for the Surface Tension brand. Leads creative direction, sonic architecture, and secures strategic partnerships.", trajectory: "This is the foundational proof-of-concept for the Surface Tension brand. Success here validates the business model and provides a powerful case study for securing investment and larger-scale partnerships for future events.", tasks: ["Finalize brand partnerships", "Define sonic arc for DJ Vixxa", "Approve final event budget"] },
+                { id: 'diana', name: 'Diana Komakhidze', role: 'Co-Founder & Graphic Designer', color: 'var(--purple)', duties: "Establishes the core visual identity and brand DNA. Designs all foundational assets, from the logo to the visual language used in marketing and environmental design.", trajectory: "This project establishes your visual direction as the core of a new, influential cultural brand. You will move from a designer to a brand architect, creating a complete visual universe.", tasks: ["Design 'Invitation' poster", "Create motion graphics trailer", "Oversee all visual branding"] },
+                { id: 'riley', name: 'Riley Temple', role: 'Lead Producer & Operations', color: 'var(--yellow)', duties: "Manages vendor relationships (A/V, rentals, printers), logistical timelines, and equipment. Navigates all permitting, insurance, and legal compliance. Oversees budget execution.", trajectory: "This is an opportunity to master the production of high-touchpoint, unconventional events. By managing complexities, you build a unique skill set that positions you as a go-to producer for bespoke experiences.", tasks: ["Secure all city permits", "Finalize A/V vendor contracts", "Create day-of run-of-show"] },
+                { id: 'vixxa', name: 'DJ Vixxa', role: 'Featured Sonic Artist', color: 'var(--teal)', duties: "Crafts and performs the multi-hour narrative DJ set that forms the core of the event's auditory journey.", trajectory: "Evolve from a featured artist to a core sonic curator, demonstrating an advanced understanding of crowd dynamics and emotional arc, opening opportunities for co-curating larger-scale experiences.", tasks: ["Curate 3-hour narrative set", "Calibrate sound during tech rehearsal", "Perform live, adapting to the crowd"] },
+                { id: 'bill', name: 'Bill Saimos', role: 'Art Curator', color: 'var(--teal)', duties: 'Sources and liaises with local artists to be featured during the community showcase. Manages art installation and de-installation.', trajectory: 'Establish a reputation as a key curator at the intersection of the SF art and tech scenes, building a strong network of local talent.', tasks: ["Finalize artist selection", "Coordinate art installation", "Liaise with artists during event"] },
+                { id: 'auguste', name: 'Auguste', role: 'Projection Mapping Artist', color: 'var(--teal)', duties: 'Designs, creates, and executes all projection mapping visuals, including the temporary "guerilla" marketing projections and the live, audio-reactive visuals during the event.', trajectory: 'Showcase advanced skills in real-time generative art and environmental design, building a portfolio piece that attracts high-end clients for immersive installations.', tasks: ["Program audio-reactive visuals", "Execute 'guerilla' projections", "Operate live visuals during event"] },
+                { id: 'lorenzo', name: 'Lorenzo', role: 'Atmospherics & Analog Capture', color: 'var(--teal)', duties: "Designs and operates the lighting systems. Captures the event on analog film to create unique visual artifacts.", trajectory: "Move from executing lighting plans to become a lead lighting artist, using light and shadow to sculpt space and guide emotion in real-time.", tasks: ["Design 3-phase lighting plot", "Capture atmosphere on 16mm film", "Manage live lighting cues"] },
+                { id: 'nate', name: 'Nate', role: 'Community Host & Content', color: 'var(--teal)', duties: "Acts as the primary point of contact for guest experience, facilitating connections and gathering feedback. Captures social media content during the event.", trajectory: "This role evolves from hosting to experience architecture. Gain invaluable data for iterating on our social design and architecting the social flow of future events.", tasks: ["Develop guest interaction strategy", "Capture live social media content", "Act as primary host, gather feedback"] },
+                { id: 'waseem', name: 'Waseem', role: 'Access & Onboarding', color: 'var(--teal)', duties: "Manages the ticketing system and the guest check-in process on the day of the event, ensuring a seamless entry experience.", trajectory: "Scale your skills from front-of-house to designing entire operational systems for ticketing, communication, and community onboarding for more complex events.", tasks: ["Test Luma check-in system", "Manage front door & guest list", "Ensure seamless entry experience"] },
+                { id: 'ivan', name: 'Ivan', role: 'On-Site Synergist', color: 'var(--teal)', duties: "Acts as the central communication and resolution hub during the live event, managing team communication and solving any on-the-fly issues.", trajectory: "This role leverages your problem-solving into a lead production capacity, gaining unmatched expertise in managing live, multi-disciplinary artistic events.", tasks: ["Establish team comms protocol", "Act as floating problem-solver", "Coordinate with venue security"] },
+                { id: 'zoe', name: 'Zoe', role: 'Graphic Designer', color: 'var(--teal)', duties: "Develops tactical graphics (social media assets, menu details) based on Diana's core brand design. Manages print production workflow and quality control.", trajectory: "Expand your role from print production to leading the design and creation of all physical brand touchpoints, from material sourcing to final production.", tasks: ["Produce all social media assets", "Manage menu print production", "QA all print materials"] },
+            ];
+            const taskData = [
+                { phase: 'Week 1: Foundations (Jul 1-6)', tasks: [
+                    { id: 1, title: 'Finalize Partnership Agreement', owner: 'riley', status: 'Completed', dates: {start:'20250701', end:'20250701'}, desc: 'Finalize and sign the partnership agreement with Sextant, locking in financial terms, responsibilities, and event date.', plan: 'Review final draft with Pratt, send to Sextant for signature via DocuSign. Store final copy in shared drive.' },
+                    { id: 2, title: 'Launch Microsite & Seed Password', owner: 'pratt', status: 'In Progress', dates: {start:'20250702', end:'20250705'}, desc: 'Deploy the password-protected "STILLNESS" microsite to begin collecting the initial email list.', plan: 'Finish Webflow build. Deploy to Vercel. Begin leaking password in 3 targeted Discord communities and via 5 tastemaker Instagram accounts.' },
+                    { id: 3, title: 'Finalize Core Visual Identity', owner: 'diana', status: 'Completed', dates: {start:'20250701', end:'20250702'}, desc: 'Lock in the final logo, color palette, and typography suite for all brand assets.', plan: 'Present final direction to Pratt. Create a shared Figma file with all approved assets for the team to use.' },
+                    { id: 10, title: 'Artist Curation & Outreach', owner: 'bill', status: 'In Progress', dates: {start:'20250702', end:'20250706'}, desc: 'Identify and secure 3-5 local artists to showcase their work at the event.', plan: 'Research local artists on Instagram and through gallery contacts. Send out initial outreach emails with a one-sheet about the event and the vision.' },
+                ]},
+                { phase: 'Week 2: Production & Outreach (Jul 7-13)', tasks: [
+                    { id: 4, title: 'Finalize Beverage Menu & Sponsorships', owner: 'pratt', status: 'Not Started', dates: {start:'20250707', end:'20250711'}, desc: 'Lock in the full drink menu and secure in-kind sponsorships from beverage partners.', plan: 'Send final proposal to Ghia and Curious Elixirs. If no response by July 9th, move to backup options. Finalize ingredient order list for Sextant.' },
+                    { id: 5, title: 'Design A5 Posters & Digital Trailer', owner: 'diana', status: 'Not Started', dates: {start:'20250707', end:'20250713'}, desc: 'Create the primary marketing assets for the campaign.', plan: 'Design the A5 poster based on "The Invitation" concept. Create a 30-second motion graphic trailer storyboard for Pratt\'s approval.' },
+                    { id: 6, title: 'Source Print Vendors', owner: 'riley', status: 'Not Started', dates: {start:'20250708', end:'20250710'}, desc: 'Identify and get quotes from local printers for poster and menu printing.', plan: 'Research vendors focusing on quality and cost-effectiveness. Top candidates: 1) <a href="https://www.apostrophecopy.com/" target="_blank" class="text-teal-400">Apostrophe (Mission)</a> for speed/location. 2) <a href="https://www.dependableletterpress.com/" target="_blank" class="text-teal-400">Dependable Letterpress</a> for high-quality, specialty prints. Get quotes for A5 120lb matte card stock.' },
+                    { id: 11, title: 'Initial Projection Concepting', owner: 'auguste', status: 'Not Started', dates: {start:'20250707', end:'20250711'}, desc: 'Develop the visual narrative and technical approach for the projection mapping.', plan: 'Create a mood board and initial styleframes in TouchDesigner. Present concepts to Pratt and Diana for feedback.' },
+                ]},
+                { phase: 'Week 3: Activation & Finalization (Jul 14-20)', tasks: [
+                    { id: 7, title: 'Execute "Guerrilla" Projection Test', owner: 'auguste', status: 'Not Started', dates: {start:'20250717', end:'20250718'}, desc: 'Create real-world intrigue with ephemeral visual art.', plan: 'Scout 2-3 high-foot-traffic locations in the Mission and Hayes Valley. Execute late-night projections of the animated logo and portal visuals.' },
+                    { id: 8, title: 'Open Ticket Sales & Release Trailer', owner: 'diana', status: 'Not Started', dates: {start:'20250716', end:'20250716'}, desc: 'Begin converting interest into attendees.', plan: 'Set up ticketing page on Luma. Release the 30s trailer on Instagram and push to the email list with the ticket link.' },
+                    { id: 12, title: 'Confirm Artist Logistics', owner: 'bill', status: 'Not Started', dates: {start: '20250714', end: '20250718'}, desc: 'Finalize all details with selected artists.', plan: 'Confirm artwork dimensions, installation requirements, and load-in/load-out times with each artist.'}
+                ]},
+                { phase: 'Week 4: GO WEEK (Jul 21-26)', tasks: [
+                    { id: 9, title: 'Coordinate A/V and Lighting Load-in', owner: 'riley', status: 'Not Started', dates: {start:'20250725', end:'20250725'}, desc: 'Manage all technical equipment delivery and setup on the day before the event.', plan: 'Create a detailed load-in schedule for all vendors. Be on-site to supervise.' },
+                    { id: 13, title: 'Final Technical Rehearsal', owner: 'auguste', status: 'Not Started', dates: {start: '20250725', end: '20250725'}, desc: 'Calibrate all projection and lighting cues with the DJ\'s planned set.', plan: 'Full run-through of the event timeline with sound and visuals to ensure seamless transitions.'}
+                ]}
+            ];
+            const venueHotspotData = {
+                bar: { title: "L-Shape Bar & DJ Booth", text: "The flipped L-shaped bar is the command center, housing the DJ booth for a seamless sonic and service experience.", pos: { x: '10%', y: '15%' }, color: 'var(--yellow)' },
+                lounge: { title: "Digital Drip Lounge", text: "A dedicated zone for our signature non-alcoholic cocktails. A space for flavor exploration and conversation.", pos: { x: '80%', y: '70%'} , color: 'var(--teal)'},
+                socialHub: { title: "Social Hub", text: "The main area for guests to connect and engage before the music elevates. Fosters community and interaction.", pos: { x: '15%', y: '70%'} , color: 'var(--purple)'},
+                projection: { title: "Projection Mapping Wall", text: "This entire surface will be a dynamic canvas for our visual artists, transforming the space throughout the night.", pos: { x: '90%', y: '50%'} , color: 'rgba(255,255,255,0.7)'}
+            };
+            
+            const debounce = (func, delay) => {
+                let timeout;
+                return (...args) => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), delay);
+                };
+            };
+            
+            class ThreeJSAnimation {
+                constructor(canvasId) {
+                    this.canvas = document.getElementById(canvasId);
+                    if (!this.canvas || typeof THREE === 'undefined') return;
+                    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
+                    this.scene = new THREE.Scene();
+                    this.clock = new THREE.Clock();
+                    this.camera = this.setupCamera();
+                    this.onResize = debounce(this._onResize.bind(this), 200);
+                    this.createScene();
+                    this.animate();
+                    window.addEventListener('resize', this.onResize);
+                    setTimeout(() => this.forceResize(), 100);
+                }
+                setupCamera() { throw new Error("Child class must implement setupCamera()"); }
+                createScene() { throw new Error("Child class must implement createScene()"); }
+                updateScene() { }
+                
+                _onResize() {
+                    const container = this.canvas.parentElement;
+                    if (!this.camera || !this.renderer || !container) return;
+                    const width = container.clientWidth;
+                    const height = container.clientHeight;
+
+                    if (width === 0 || height === 0) { 
+                        return;
+                    }
+
+                    this.camera.aspect = width / height;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(width, height);
+                    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                }
+
+                forceResize() {
+                    this._onResize();
+                }
+                
+                animate() {
+                    if (this.isActive) {
+                        this.updateScene();
+                        this.renderer.render(this.scene, this.camera);
+                    }
+                    requestAnimationFrame(() => this.animate());
+                }
+
+                setActive(isActive) {
+                    this.isActive = isActive;
+                }
+            }
+
+            class CoverAnimation extends ThreeJSAnimation {
+                setupCamera() {
+                    const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+                    camera.position.z = 5;
+                    return camera;
+                }
+                createScene() {
+                    const geometry = new THREE.PlaneGeometry(25, 25, 64, 64); // Perf: Reduced vertices
+                    const material = new THREE.ShaderMaterial({
+                        uniforms: {
+                            uTime: { value: 0 },
+                            uLight1Pos: { value: new THREE.Vector3(5, 3, 4) },
+                            uLight1Color: { value: new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--emerald')) },
+                            uLight2Pos: { value: new THREE.Vector3(-5, -3, 4) },
+                            uLight2Color: { value: new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--purple')) },
+                        },
+                        vertexShader: `
+                            uniform float uTime;
+                            varying vec3 vNormal;
+                            varying vec3 vPosition;
+                            vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                            vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                            vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+                            vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+                            float snoise(vec3 v) {
+                                const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+                                const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+                                vec3 i = floor(v + dot(v, C.yyy));
+                                vec3 x0 = v - i + dot(i, C.xxx);
+                                vec3 g = step(x0.yzx, x0.xyz);
+                                vec3 l = 1.0 - g;
+                                vec3 i1 = min(g.xyz, l.zxy);
+                                vec3 i2 = max(g.xyz, l.zxy);
+                                vec3 x1 = x0 - i1 + C.xxx;
+                                vec3 x2 = x0 - i2 + C.yyy;
+                                vec3 x3 = x0 - D.yyy;
+                                i = mod289(i);
+                                vec4 p = permute( permute( permute(i.z + vec4(0.0, i1.z, i2.z, 1.0)) + i.y + vec4(0.0, i1.y, i2.y, 1.0 )) + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
+                                float n_ = 0.142857142857;
+                                vec3 ns = n_ * D.wyz - D.xzx;
+                                vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+                                vec4 x_ = floor(j * ns.z);
+                                vec4 y_ = floor(j - 7.0 * x_);
+                                vec4 x = x_ * ns.x + ns.yyyy;
+                                vec4 y = y_ * ns.x + ns.yyyy;
+                                vec4 h = 1.0 - abs(x) - abs(y);
+                                vec4 b0 = vec4(x.xy, y.xy);
+                                vec4 b1 = vec4(x.zw, y.zw);
+                                vec4 s0 = floor(b0) * 2.0 + 1.0;
+                                vec4 s1 = floor(b1) * 2.0 + 1.0;
+                                vec4 sh = -step(h, vec4(0.0));
+                                vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
+                                vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+                                vec3 p0 = vec3(a0.xy,h.x);
+                                vec3 p1 = vec3(a0.zw,h.y);
+                                vec3 p2 = vec3(a1.xy,h.z);
+                                vec3 p3 = vec3(a1.zw,h.w);
+                                vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
+                                p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+                                vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+                                m = m * m;
+                                return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+                            }
+                            void main() {
+                                vec3 pos = position;
+                                float noise = snoise(vec3(pos.xy * 0.3, uTime * 0.1));
+                                pos.z += noise * 0.4;
+                                gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+                                vNormal = normal;
+                                vPosition = (modelViewMatrix * vec4(pos, 1.0)).xyz;
+                            }
+                        `,
+                        fragmentShader: `
+                           uniform vec3 uLight1Pos;
+                            uniform vec3 uLight1Color;
+                            uniform vec3 uLight2Pos;
+                            uniform vec3 uLight2Color;
+                            varying vec3 vNormal;
+                            varying vec3 vPosition;
+                            void main() {
+                                vec3 normal = normalize(vNormal);
+                                float ambientStrength = 0.05;
+                                vec3 ambient = ambientStrength * vec3(1.0);
+                                vec3 lightDir1 = normalize(uLight1Pos - vPosition);
+                                float diff1 = max(dot(normal, lightDir1), 0.0);
+                                vec3 diffuse1 = diff1 * uLight1Color;
+                                vec3 lightDir2 = normalize(uLight2Pos - vPosition);
+                                float diff2 = max(dot(normal, lightDir2), 0.0);
+                                vec3 diffuse2 = diff2 * uLight2Color;
+                                vec3 viewDir = normalize(-vPosition);
+                                float fresnel = 1.0 - dot(viewDir, normal);
+                                fresnel = pow(fresnel, 3.0);
+                                vec3 finalColor = ambient + (diffuse1 + diffuse2) * 2.0 + fresnel * 0.2;
+                                gl_FragColor = vec4(finalColor, fresnel * 0.8 + 0.2);
+                            }
+                        `,
+                        wireframe: true,
+                        transparent: true,
+                        depthWrite: false
+                    });
+                    this.surface = new THREE.Mesh(geometry, material);
+                    this.scene.add(this.surface);
+                }
+                updateScene() {
+                    if (this.surface) {
+                        this.surface.material.uniforms.uTime.value = this.clock.getElapsedTime();
+                    }
+                }
+            }
+
+            class PhilosophyAnimation extends ThreeJSAnimation {
+                setupCamera() {
+                    const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 100);
+                    camera.position.z = 4;
+                    return camera;
+                }
+                createScene() {
+                    const geometry = new THREE.PlaneGeometry(15, 15, 50, 50); // Perf: Reduced vertices
+                    const material = new THREE.ShaderMaterial({
+                        uniforms: { uTime: { value: 0 } },
+                        vertexShader: `uniform float uTime;varying float vElevation;vec3 mod289(vec3 x){return x-floor(x*(1./289.))*289.;}vec4 mod289(vec4 x){return x-floor(x*(1./289.))*289.;}vec4 permute(vec4 x){return mod289(((x*34.)+1.)*x);}vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-.85373472095314*r;}float snoise(vec3 v){const vec2 C=vec2(1./6.,1./3.);const vec4 D=vec4(0.,.5,1.,2.);vec3 i=floor(v+dot(v,C.yyy));vec3 x0=v-i+dot(i,C.xxx);vec3 g=step(x0.yzx,x0.xyz);vec3 l=1.-g;vec3 i1=min(g.xyz,l.zxy);vec3 i2=max(g.xyz,l.zxy);vec3 x1=x0-i1+C.xxx;vec3 x2=x0-i2+C.yyy;vec3 x3=x0-D.yyy;i=mod289(i);vec4 p=permute(permute(permute(i.z+vec4(0.,i1.z,i2.z,1.))+i.y+vec4(0.,i1.y,i2.y,1.))+i.x+vec4(0.,i1.x,i2.x,1.));float n_=.142857142857;vec3 ns=n_*D.wyz-D.xzx;vec4 j=p-49.*floor(p*ns.z*ns.z);vec4 x_=floor(j*ns.z);vec4 y_=floor(j-7.*x_);vec4 x=x_*ns.x+ns.yyyy;vec4 y=y_*ns.x+ns.yyyy;vec4 h=1.-abs(x)-abs(y);vec4 b0=vec4(x.xy,y.xy);vec4 b1=vec4(x.zw,y.zw);vec4 s0=floor(b0)*2.+1.;vec4 s1=floor(b1)*2.+1.;vec4 sh=-step(h,vec4(0.));vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;vec3 p0=vec3(a0.xy,h.x);vec3 p1=vec3(a0.zw,h.y);vec3 p2=vec3(a1.xy,h.z);vec3 p3=vec3(a1.zw,h.w);vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;vec4 m=max(.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.);m=m*m;return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));}void main(){vec3 pos=position;float noise=snoise(vec3(pos.xy*.5,uTime*.2));pos.z+=noise*.2;vElevation=noise;gl_Position=projectionMatrix*modelViewMatrix*vec4(pos,1.);}`,
+                        fragmentShader: `varying float vElevation;void main(){float opacity=(vElevation+1.)*.5;gl_FragColor=vec4(1.,1.,1.,opacity*.3);}`,
+                        wireframe: true, transparent: true
+                    });
+                    this.surface = new THREE.Mesh(geometry, material);
+                    this.surface.rotation.x = -Math.PI * 0.4;
+                    this.scene.add(this.surface);
+                }
+                updateScene() {
+                    if (this.surface) {
+                        this.surface.material.uniforms.uTime.value = this.clock.getElapsedTime();
+                    }
+                }
+            }
+            class RippleAnimation extends ThreeJSAnimation {
+                setupCamera() { 
+                    const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 1000); 
+                    camera.position.set(0, 3, 0); 
+                    camera.lookAt(0,0,0); 
+                    return camera; 
+                }
+                createScene() {
+                    const geometry = new THREE.PlaneGeometry(10, 10, 128, 128); // Perf: Reduced vertices
+                    const material = new THREE.ShaderMaterial({
+                        uniforms: {
+                            uTime: { value: 0 },
+                            uCoffeeColor: { value: new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--coffee')) }
+                        },
+                        vertexShader: `uniform float uTime;varying float vElevation;void main(){vec2 p=position.xy;float t=uTime*.5;float d=length(p);float ripple=sin(d*10.-t*3.);float wave=sin(p.x*2.+t);float z=(ripple*.1)+(wave*.05);vElevation=z;gl_Position=projectionMatrix*modelViewMatrix*vec4(position.x,position.y,z,1.);}`,
+                        fragmentShader: `uniform vec3 uCoffeeColor;varying float vElevation;void main(){float shade=smoothstep(-.2,.2,vElevation);vec3 color=mix(uCoffeeColor*.5,uCoffeeColor*1.5,shade);gl_FragColor=vec4(color,1.);}`,
+                        transparent: true
+                    });
+                    this.surface = new THREE.Mesh(geometry, material);
+                    this.surface.rotation.x = -Math.PI / 2;
+                    this.scene.add(this.surface);
+                }
+                updateScene() {
+                    if (this.surface) {
+                        this.surface.material.uniforms.uTime.value = this.clock.getElapsedTime();
+                    }
+                }
+            }
+            class FinaleAnimation extends ThreeJSAnimation {
+                setupCamera() { 
+                    const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000); 
+                    camera.position.z = 300; 
+                    return camera; 
+                }
+                createScene() {
+                    const particleCount = 3000; // Perf: Reduced vertices
+                    const positions = new Float32Array(particleCount * 3);
+                    for (let i = 0; i < particleCount; i++) {
+                        const i3 = i * 3;
+                        positions[i3] = (Math.random() - 0.5) * 1000;
+                        positions[i3 + 1] = (Math.random() - 0.5) * 1000;
+                        positions[i3 + 2] = (Math.random() - 0.5) * 1000;
+                    }
+                    const geometry = new THREE.BufferGeometry();
+                    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                    const material = new THREE.PointsMaterial({
+                        size: 1.5, color: 0xaaaaaa, transparent: true, blending: THREE.AdditiveBlending,
+                        depthWrite: false, opacity: 0.7
+                    });
+                    this.particles = new THREE.Points(geometry, material);
+                    this.scene.add(this.particles);
+                }
+                updateScene() {
+                    const elapsedTime = this.clock.getElapsedTime();
+                    this.camera.position.z -= 0.15;
+                    if(this.camera.position.z < -400) this.camera.position.z = 500;
+                    if (this.particles) {
+                        this.particles.rotation.y = elapsedTime * 0.01;
+                        this.particles.rotation.x = elapsedTime * 0.02;
+                    }
+                }
+            }
+
+            class App {
+                constructor() {
+                    this.currentSlide = 0;
+                    this.isAnimating = false;
+                    this.activeAnimations = {};
+                    this.dom = {};
+                    this.nodePositions = {};
+                    this.init();
+                }
+                init() {
+                    this.setupDOM();
+                    this.renderSlides();
+                    this.renderAllDynamicContent();
+                    this.bindEvents();
+                    this.goTo(0, true);
+                }
+                setupDOM() {
+                    this.dom = {
+                        app: document.getElementById('app-container'),
+                        header: document.getElementById('app-header'),
+                        container: document.getElementById('slide-container'),
+                        dots: document.getElementById('nav-dots'),
+                        indicator: document.getElementById('slide-indicator'),
+                        modalContainer: document.getElementById('modal-container'),
+                        modalTitle: document.getElementById('modal-title'),
+                        modalBody: document.getElementById('modal-body'),
+                        modalCloseBtn: document.getElementById('modal-close-btn'),
+                    };
+                }
+                renderSlides() {
+                    if (!this.dom.container) return;
+                    const slidesHtml = slideData.map((data, index) => {
+                        const isPinterestSlide = data.id === 'posters' || data.id === 'lighting';
+                        const wrapperClass = isPinterestSlide ? '' : 'slide-content-wrapper';
+                        
+                        const backgroundHtml = data.background || '';
+                        const contentHtml = data.title 
+                            ? `<div class="${wrapperClass}">
+                                ${data.id === 'team' ? '<div id="circuit-background"></div>' : ''}
+                                <div class="reveal-item"><h2 class="section-heading">${data.title}</h2></div>
+                                ${data.content}
+                            </div>`
+                            : data.content;
+
+                        return `
+                            <div class="slide" id="slide-${index}" data-slide-id="${data.id}">
+                                ${backgroundHtml}
+                                ${contentHtml}
+                            </div>`;
+                    }).join('');
+                    
+                    this.dom.container.innerHTML = slidesHtml;
+                    this.slides = this.dom.container.querySelectorAll('.slide');
+                }
+                renderAllDynamicContent() {
+                    this.slides.forEach(slide => {
+                        const id = slide.dataset.slideId;
+                        const container = slide.querySelector('.slide-content-wrapper') || slide; 
+                        
+                        if (id === 'experience') {
+                            container.querySelector('#interactive-timeline-container')?.appendChild(this.renderInteractiveTimeline());
+                        } else if (id === 'venue') {
+                            this.renderVenueHotspots(container.querySelector('#hotspots-container'));
+                        } else if (id === 'team') {
+                            this.renderCircuitBoardTeam(container.querySelector('#circuit-board-container'));
+                        } else if (id === 'tasks') {
+                             this.renderTaskPlanner(container.querySelector('#task-planner'));
+                        }
+                    });
+                }
+                renderInteractiveTimeline() {
+                     const fragment = document.createDocumentFragment();
+                     const bar = document.createElement('div');
+                     bar.className = 'timeline-bar';
+                     bar.innerHTML = timelineData.map((item, index) => `
+                        <div class="timeline-card" data-index="${index}">
+                            <div class="time-indicator" style="color:${item.color}">${item.time}</div>
+                            <div class="title-indicator">${item.title}</div>
+                        </div>`).join('');
+                    fragment.appendChild(bar);
+                    return fragment;
+                }
+                renderCircuitBoardTeam(container) {
+                    if (!container) return;
+                    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    svg.id = 'circuit-svg';
+                    svg.setAttribute('viewBox', '0 0 100 100');
+                    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                    
+                    const fragment = document.createDocumentFragment();
+                    fragment.appendChild(svg);
+                    
+                    const teamLayout = { pratt: { pos: { x: 40, y: 15 }, tier: 'leadership' }, diana: { pos: { x: 60, y: 15 }, tier: 'leadership' }, riley: { pos: { x: 50, y: 35 }, tier: 'leadership' }, zoe: { pos: { x: 78, y: 22 }, tier: 'creative' }, vixxa: { pos: { x: 50, y: 60 }, tier: 'performance' }, auguste: { pos: { x: 20, y: 35 }, tier: 'creative' }, lorenzo: { pos: { x: 80, y: 45 }, tier: 'creative' }, bill:  { pos: { x: 20, y: 60 }, tier: 'curation' }, nate:  { pos: { x: 80, y: 70 }, tier: 'community' }, waseem:{ pos: { x: 35, y: 85 }, tier: 'community' }, ivan:  { pos: { x: 65, y: 85 }, tier: 'community' } };
+                    this.nodePositions = {};
+                    
+                    teamData.forEach((member, i) => {
+                        if (teamLayout[member.id]) {
+                            const { pos, tier } = teamLayout[member.id];
+                            this.nodePositions[member.id] = pos;
+                            fragment.appendChild(this.createTeamNode(member, `${pos.x}%`, `${pos.y}%`, tier, i));
+                        }
+                    });
+                    
+                    container.innerHTML = '';
+                    container.appendChild(fragment);
+
+                    const connections = [ { from: 'pratt', to: 'riley' }, { from: 'diana', to: 'riley' }, { from: 'diana', to: 'zoe' }, { from: 'riley', to: 'vixxa' }, { from: 'riley', to: 'auguste' }, { from: 'riley', to: 'lorenzo' }, { from: 'pratt', to: 'bill' }, { from: 'pratt', to: 'nate' }, { from: 'riley', to: 'waseem' }, { from: 'riley', to: 'ivan' } ];
+                    const svgTarget = container.querySelector('#circuit-svg');
+                    connections.forEach((conn, i) => {
+                        this.drawConnection(svgTarget, this.nodePositions[conn.from], this.nodePositions[conn.to], conn, i);
+                    });
+                }
+                createTeamNode(member, x, y, tier, index) {
+                    const node = document.createElement('div');
+                    const isLeadership = tier === 'leadership';
+                    node.className = `team-node card clickable-card ${isLeadership ? 'leadership-node' : ''}`;
+                    node.style.left = x;
+                    node.style.top = y;
+                    node.style.borderColor = member.color;
+                    node.dataset.memberId = member.id;
+                    node.style.setProperty('--shadow-color', member.color);
+                    node.style.setProperty('--delay', `${index * 0.1}s`);
+                    node.innerHTML = `<h4 class="font-bold text-sm pointer-events-none">${member.name}</h4><p class="text-xs pointer-events-none" style="color:${member.color};">${member.role}</p>`;
+                    return node;
+                }
+                drawConnection(svg, fromPos, toPos, conn, index) {
+                    if (!svg || !fromPos || !toPos) return;
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    const x1 = fromPos.x, y1 = fromPos.y, x2 = toPos.x, y2 = toPos.y;
+                    const cx = (x1 + x2) / 2 + (y2 - y1) * 0.15;
+                    const cy = (y1 + y2) / 2 - (x2 - x1) * 0.15;
+                    path.setAttribute('d', `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`);
+                    path.setAttribute('class', 'circuit-path');
+                    path.setAttribute('data-from', conn.from);
+                    path.setAttribute('data-to', conn.to);
+                    path.setAttribute('vector-effect', 'non-scaling-stroke');
+                    path.style.animationDelay = `${0.5 + index * 0.1}s`;
+                    
+                    const dataFlowPath = path.cloneNode();
+                    dataFlowPath.setAttribute('class', 'data-flow');
+                    dataFlowPath.setAttribute('data-from', conn.from);
+                    dataFlowPath.setAttribute('data-to', conn.to);
+                    
+                    svg.appendChild(path);
+                    svg.appendChild(dataFlowPath);
+                }
+                renderTaskPlanner(container) {
+                    if(!container) return;
+                    const statusColors = { 'Completed': 'var(--emerald)', 'In Progress': 'var(--yellow)', 'Not Started': 'var(--text-secondary)' };
+                    const ownerColors = { pratt: 'var(--emerald)', diana: 'var(--purple)', riley: 'var(--yellow)', vixxa: 'var(--teal)', lorenzo: 'var(--teal)', zoe: 'var(--teal)', waseem:'var(--teal)', nate:'var(--teal)',ivan:'var(--teal)', bill: 'var(--teal)', auguste: 'var(--teal)' };
+                    container.innerHTML = taskData.map(phase => `
+                        <div class="reveal-item">
+                            <h3 class="sub-heading text-base text-purple-400 mb-4">${phase.phase}</h3>
+                            <div class="space-y-3">${phase.tasks.map(task => `
+                                <div class="flex items-center gap-4 p-3 bg-gray-900/40 rounded-lg clickable-card" data-task-id="${task.id}">
+                                    <div class="w-4 h-4 rounded-full flex-shrink-0" style="background-color: ${statusColors[task.status]};" title="${task.status}"></div>
+                                    <div class="flex-grow"><p>${task.title}</p></div>
+                                    <div class="text-xs font-semibold px-2 py-1 rounded-full capitalize" style="background-color: ${ownerColors[task.owner] || 'gray'}33; color: ${ownerColors[task.owner] || 'gray'};">${task.owner}</div>
+                                </div>`).join('')}
+                            </div>
+                        </div>`).join('');
+                }
+                renderVenueHotspots(container) {
+                    if(!container) return;
+                    const fragment = document.createDocumentFragment();
+                    Object.entries(venueHotspotData).forEach(([key, data]) => {
+                        const hotspot = document.createElement('div');
+                        hotspot.className = 'venue-hotspot clickable-card';
+                        hotspot.dataset.area = key;
+                        hotspot.style.left = data.pos.x;
+                        hotspot.style.top = data.pos.y;
+                        hotspot.innerHTML = `<div class="hotspot-dot" style="background-color: ${data.color}; box-shadow: 0 0 15px ${data.color};"></div>`;
+                        fragment.appendChild(hotspot);
+                    });
+                    container.appendChild(fragment);
+                }
+
+                bindEvents() {
+                    document.addEventListener('keydown', (e) => this.handleKeydown(e));
+                    this.dom.dots.addEventListener('click', (e) => {
+                        if (e.target.matches('.nav-dot')) this.goTo(parseInt(e.target.dataset.index));
+                    });
+                    this.dom.modalCloseBtn.addEventListener('click', () => this.hideModal());
+                    this.dom.modalContainer.addEventListener('click', (e) => {
+                        if (e.target === this.dom.modalContainer) this.hideModal();
+                    });
+                    this.dom.app.addEventListener('click', (e) => {
+                        const teamNode = e.target.closest('.team-node');
+                        const taskCard = e.target.closest('.clickable-card[data-task-id]');
+                        const timelineCard = e.target.closest('.timeline-card');
+                        const venueHotspot = e.target.closest('.venue-hotspot');
+                        const projectionLink = e.target.closest('.projection-link');
+                        
+                        if (teamNode) this.showTeamModal(teamNode.dataset.memberId);
+                        else if (taskCard) this.showTaskModal(taskCard.dataset.taskId);
+                        else if (timelineCard) this.showTimelineModal(timelineCard.dataset.index);
+                        else if (venueHotspot) this.showVenueModal(venueHotspot.dataset.area);
+                        else if (projectionLink) {
+                            e.preventDefault();
+                            this.updateProjectionVideo(projectionLink);
+                        }
+                    });
+
+                    const circuitBoard = this.dom.app.querySelector('#circuit-board-container');
+                    if (circuitBoard) {
+                        circuitBoard.addEventListener('mouseover', (e) => {
+                            const targetNode = e.target.closest('.team-node');
+                            if (targetNode) {
+                                const memberId = targetNode.dataset.memberId;
+                                this.activateNode(memberId);
+                            }
+                        });
+
+                        circuitBoard.addEventListener('mouseout', (e) => {
+                            const targetNode = e.target.closest('.team-node');
+                            if (targetNode) {
+                               this.deactivateAllNodes();
+                            }
+                        });
+                    }
+                }
+
+                activateNode(memberId) {
+                    this.deactivateAllNodes();
+                    const circuitBoard = this.dom.app.querySelector('#circuit-board-container');
+                    if (!circuitBoard) return;
+
+                    const node = circuitBoard.querySelector(`.team-node[data-member-id="${memberId}"]`);
+                    if (node) {
+                        node.classList.add('is-active');
+                    }
+                    
+                    const paths = circuitBoard.querySelectorAll(`.circuit-path[data-from="${memberId}"], .circuit-path[data-to="${memberId}"]`);
+                    const dataFlows = circuitBoard.querySelectorAll(`.data-flow[data-from="${memberId}"], .data-flow[data-to="${memberId}"]`);
+                    const memberData = teamData.find(m => m.id === memberId);
+                    
+                    if(memberData) {
+                        paths.forEach(p => {
+                            p.classList.add('is-active');
+                            p.style.setProperty('--active-color', memberData.color);
+                        });
+                        dataFlows.forEach(df => {
+                            df.classList.add('is-active');
+                            df.style.setProperty('--active-color', memberData.color);
+                        });
+                    }
+                }
+
+                deactivateAllNodes() {
+                    const circuitBoard = this.dom.app.querySelector('#circuit-board-container');
+                    if (!circuitBoard) return;
+
+                    circuitBoard.querySelectorAll('.is-active').forEach(el => el.classList.remove('is-active'));
+                    circuitBoard.querySelectorAll('.circuit-path, .data-flow').forEach(p => p.style.removeProperty('--active-color'));
+                }
+
+                goTo(index, isInitial = false) {
+                    if (this.isAnimating || (index >= this.slides.length) || (index === this.currentSlide && !isInitial)) return;
+                    this.isAnimating = true;
+                    
+                    if (this.activeAnimations[this.currentSlide]) {
+                        this.activeAnimations[this.currentSlide].setActive(false);
+                    }
+                    
+                    const oldSlide = this.slides[this.currentSlide];
+                    if (oldSlide) oldSlide.classList.remove('active');
+
+                    this.currentSlide = index;
+                    const newSlide = this.slides[this.currentSlide];
+                    if (newSlide) newSlide.classList.add('active');
+                    
+                    this.initAnimationForSlide(this.currentSlide);
+                    this.updateUI();
+
+                    if ((slideData[this.currentSlide].id === 'posters' || slideData[this.currentSlide].id === 'lighting') && typeof window.PinUtils !== 'undefined') {
+                        // The Pinterest script sometimes needs a moment after the slide is visible to find the anchor tag.
+                        setTimeout(() => {
+                           window.PinUtils.build();
+                        }, 100); 
+                    }
+                    
+                    setTimeout(() => { 
+                        this.isAnimating = false; 
+                        if (isInitial) {
+                            document.body.classList.add('loaded');
+                        }
+                    }, 800);
+                }
+                next() { this.goTo((this.currentSlide + 1) % this.slides.length); }
+                prev() { this.goTo((this.currentSlide - 1 + this.slides.length) % this.slides.length); }
+                handleKeydown(e) {
+                    if (this.dom.modalContainer.classList.contains('visible')) {
+                        if (e.key === 'Escape') this.hideModal();
+                        return;
+                    }
+                    if (e.key === 'ArrowRight' || e.key === ' ') this.next();
+                    if (e.key === 'ArrowLeft') this.prev();
+                }
+                updateUI() {
+                    this.dom.dots.innerHTML = slideData.map((_, index) => `<div class="nav-dot ${index === this.currentSlide ? 'active' : ''}" data-index="${index}"></div>`).join('');
+                    this.dom.indicator.textContent = `${String(this.currentSlide + 1).padStart(2, '0')} / ${slideData.length}`;
+                    const isFirstOrLast = this.currentSlide === 0 || this.currentSlide === slideData.length - 1;
+                    this.dom.header.style.opacity = isFirstOrLast ? '0' : '1';
+                }
+                initAnimationForSlide(index) {
+                     if (this.activeAnimations[index]) {
+                        this.activeAnimations[index].forceResize();
+                        this.activeAnimations[index].setActive(true);
+                        return;
+                     }
+                     const slideId = slideData[index]?.id;
+                     const canvas = this.slides[index].querySelector('canvas');
+                     if (!canvas) return;
+                     const AnimationClass = { 'cover': CoverAnimation, 'philosophy': PhilosophyAnimation, 'experience': RippleAnimation, 'final': FinaleAnimation }[slideId];
+                     if (AnimationClass) {
+                        this.activeAnimations[index] = new AnimationClass(canvas.id);
+                        this.activeAnimations[index].setActive(true);
+                     }
+                }
+                showTeamModal(memberId) {
+                    const data = teamData.find(m => m.id === memberId);
+                    if (!data) return;
+                    this.dom.modalTitle.innerHTML = `<span style="color:${data.color};">${data.name}</span>`;
+                    const tasksHtml = (data.tasks || []).map(task => `
+                        <li class="flex items-start">
+                            <svg class="w-4 h-4 mr-3 mt-1 flex-shrink-0" fill="none" stroke="${data.color}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>${task}</span>
+                        </li>`).join('');
+                    this.dom.modalBody.innerHTML = `
+                        <div class="grid lg:grid-cols-2 gap-x-8 gap-y-6 body-text text-sm">
+                            <div>
+                                <h4 class="font-semibold text-base text-gray-300 mb-2">Main Duties</h4>
+                                <p class="text-gray-400">${data.duties}</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-base text-gray-300 mb-2">Growth Trajectory</h4>
+                                <p class="text-gray-400">${data.trajectory}</p>
+                            </div>
+                            ${tasksHtml ? `<div class="lg:col-span-2">
+                                <h4 class="font-semibold text-base text-gray-300 mb-3 border-t border-gray-800 pt-4">Key Event Tasks</h4>
+                                <ul class="space-y-2">${tasksHtml}</ul>
+                            </div>` : ''}
+                        </div>`;
+                    this.dom.modalContainer.classList.add('visible');
+                }
+                showTaskModal(taskId) {
+                    const task = taskData.flatMap(p => p.tasks).find(t => String(t.id) === taskId);
+                    if (!task) return;
+                    const ownerData = teamData.find(m => m.id === task.owner);
+                    this.dom.modalTitle.innerHTML = `<span style="color:${ownerData ? ownerData.color : 'white'};">${task.title}</span>`;
+                    const calendarLink = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`ST: ${task.title}`)}&dates=${task.dates.start}T090000/${task.dates.end}T170000&details=${encodeURIComponent(task.desc)}&location=${encodeURIComponent('Sextant Coffee Roasters, 539 Valencia St, San Francisco, CA')}`;
+                    this.dom.modalBody.innerHTML = `<div class="space-y-6 body-text text-sm"><div><h4 class="font-semibold text-base text-gray-300 mb-1">Description</h4><p class="text-gray-400">${task.desc}</p></div><div><h4 class="font-semibold text-base text-gray-300 mb-1">Execution Plan</h4><p class="text-gray-400">${task.plan}</p></div><div><h4 class="font-semibold text-base text-gray-300 mb-1">Comments</h4><textarea class="w-full bg-gray-900/50 rounded p-2 text-sm border border-gray-700" rows="3" placeholder="Add comments here..."></textarea></div><a href="${calendarLink}" target="_blank" class="inline-block bg-teal-500 text-black font-bold text-sm px-4 py-2 rounded-lg hover:bg-teal-400 transition-colors">Add to Google Calendar</a></div>`;
+                    this.dom.modalContainer.classList.add('visible');
+                }
+                showTimelineModal(index) {
+                    const data = timelineData[index];
+                    if (!data) return;
+                    this.dom.modalTitle.innerHTML = `<span style="color:${data.color};">${data.title}</span> <span class="text-gray-400 font-sans text-lg ml-4">${data.time}</span>`;
+                    this.dom.modalBody.innerHTML = `
+                        <div class="body-text space-y-6">
+                           <p>${data.description}</p>
+                           <div class="border-t border-gray-800 pt-6 space-y-4">
+                                <div><h5 class="sub-heading text-sm text-purple-400 mb-1">Guest Experience & Flow</h5><p class="text-sm">${data.tasks.guestExperience}</p></div>
+                                <div><h5 class="sub-heading text-sm text-emerald-400 mb-1">Sonic Architecture</h5><p class="text-sm">${data.tasks.sonic}</p></div>
+                                <div><h5 class="sub-heading text-sm text-yellow-400 mb-1">Operations & Logistics</h5><p class="text-sm">${data.tasks.operations}</p></div>
+                           </div>
+                        </div>`;
+                    this.dom.modalContainer.classList.add('visible');
+                }
+                showVenueModal(areaId) {
+                    const data = venueHotspotData[areaId];
+                    if (!data) return;
+                    this.dom.modalTitle.innerHTML = `<span style="color:${data.color};">${data.title}</span>`;
+                    this.dom.modalBody.innerHTML = `<p class="body-text">${data.text}</p>`;
+                    this.dom.modalContainer.classList.add('visible');
+                }
+                updateProjectionVideo(linkElement) {
+                    const videoId = linkElement.dataset.videoId;
+                    const source = linkElement.dataset.source;
+                    const iframe = document.getElementById('projection-player');
+                    
+                    if (!videoId || !source || !iframe) return;
+
+                    let sourceUrl = '';
+                    if (source === 'vimeo') {
+                        sourceUrl = `https://player.vimeo.com/video/${videoId}?autoplay=1&loop=1&autopause=0&muted=1&title=0&byline=0&portrait=0`;
+                    } else { // youtube
+                        sourceUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&modestbranding=1&rel=0`;
+                    }
+                    iframe.src = sourceUrl;
+                    
+                    // Update active class
+                    const container = document.getElementById('projection-links-container');
+                    if(container) {
+                        container.querySelectorAll('.projection-link').forEach(link => link.classList.remove('active'));
+                        linkElement.classList.add('active');
+                    }
+                }
+                hideModal() {
+                    this.dom.modalContainer.classList.remove('visible');
+                    setTimeout(() => { this.dom.modalBody.innerHTML = ''; }, 400);
+                }
+            }
+            new App();
+        });
+    </script>
+</body>
+</html>
