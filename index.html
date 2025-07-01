@@ -107,6 +107,7 @@
             scrollbar-width: thin;
             scrollbar-color: var(--emerald) transparent;
             padding: 4rem 1rem 6rem;
+            cursor: pointer;
         }
 
         @media (min-width: 768px) {
@@ -149,13 +150,62 @@
 
 
         /* Header & Navigation */
-        #app-header { position: fixed; top: 0; left: 0; width: 100%; padding: 1rem; display: flex; justify-content: space-between; align-items: center; z-index: 100; transition: opacity 0.3s ease; }
-        @media (min-width: 768px) {
-            #app-header { padding: 1.5rem 2rem; }
+        #app-header { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            padding: 1rem; 
+            display: flex; 
+            flex-direction: column;
+            gap: 0.75rem;
+            justify-content: space-between; 
+            align-items: center; 
+            z-index: 100; 
+            transition: opacity 0.3s ease; 
         }
-        #navigation { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 1rem; background-color: rgba(10,14,26,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 99px; z-index: 100; }
-        .nav-dot { width: 8px; height: 8px; background-color: rgba(255,255,255,0.3); border-radius: 50%; cursor: pointer; transition: all 0.3s ease; }
-        .nav-dot.active { background-color: var(--emerald); box-shadow: 0 0 5px var(--emerald); transform: scale(1.2); }
+        @media (min-width: 768px) {
+            #app-header { 
+                padding: 1.5rem 2rem; 
+                flex-direction: row;
+            }
+        }
+        #story-progress {
+            display: flex;
+            gap: 4px;
+            width: 100%;
+            max-width: 400px;
+            order: 1;
+        }
+        @media (min-width: 768px) {
+            #story-progress {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                order: 0;
+            }
+        }
+        .progress-bar-container {
+            flex: 1;
+            height: 3px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            width: 0;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            transition: width 0.3s linear;
+        }
+        .progress-bar-container.active .progress-bar {
+            background-color: white;
+            width: 100%;
+        }
+        .progress-bar-container.viewed .progress-bar {
+            width: 100%;
+        }
+
 
         /* Animation & Interactivity */
         .reveal-item { opacity: 0; transform: translateY(25px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; will-change: opacity, transform; transition-delay: var(--delay, 0s); }
@@ -191,14 +241,6 @@
             #modal-body { padding: 2rem; }
         }
         
-        /* Interactive Timeline */
-        .timeline-bar { display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 1rem; border: 1px solid var(--border-color); }
-        .timeline-card { position: relative; flex: 1; text-align: center; padding: 1rem 0.5rem; border-radius: 0.75rem; cursor: pointer; transition: background-color 0.3s ease; }
-        .timeline-card:hover { background-color: rgba(255,255,255,0.1); }
-        .timeline-card .time-indicator { font-family: "ivypresto-display", serif; font-size: 1.25rem; }
-        .timeline-card .title-indicator { font-size: 0.75rem; color: var(--text-secondary); letter-spacing: 0.05em; text-transform: uppercase; }
-        .timeline-card-details { display: none; }
-
         /* Flicker Animation */
         @keyframes flicker {
             0%, 18%, 22%, 25%, 53%, 57%, 100% {
@@ -323,14 +365,12 @@
     <div id="app-container">
         <header id="app-header">
             <div id="header-logo" class="text-white font-bold text-lg" style="font-family: 'ivypresto-display', serif;">Surface Tension</div>
-            <div id="slide-indicator" class="text-sm text-gray-400"></div>
+            <div id="story-progress"></div>
+            <div id="slide-indicator" class="text-sm text-gray-400 hidden md:block"></div>
         </header>
 
         <div id="slide-container"></div>
 
-        <nav id="navigation">
-            <div id="nav-dots" class="flex gap-3 items-center"></div>
-        </nav>
     </div>
     
     <div id="modal-container">
@@ -807,7 +847,7 @@
                         app: document.getElementById('app-container'),
                         header: document.getElementById('app-header'),
                         container: document.getElementById('slide-container'),
-                        dots: document.getElementById('nav-dots'),
+                        progress: document.getElementById('story-progress'),
                         indicator: document.getElementById('slide-indicator'),
                         modalContainer: document.getElementById('modal-container'),
                         modalTitle: document.getElementById('modal-title'),
@@ -963,14 +1003,23 @@
 
                 bindEvents() {
                     document.addEventListener('keydown', (e) => this.handleKeydown(e));
-                    this.dom.dots.addEventListener('click', (e) => {
-                        if (e.target.matches('.nav-dot')) this.goTo(parseInt(e.target.dataset.index));
-                    });
                     this.dom.modalCloseBtn.addEventListener('click', () => this.hideModal());
                     this.dom.modalContainer.addEventListener('click', (e) => {
                         if (e.target === this.dom.modalContainer) this.hideModal();
                     });
                     this.dom.app.addEventListener('click', (e) => {
+                        // Story-style navigation
+                        if (!e.target.closest('a, button, .clickable-card, .team-node')) {
+                            const clickX = e.clientX;
+                            const screenWidth = window.innerWidth;
+                            if (clickX > screenWidth * 0.7) {
+                                this.next();
+                            } else if (clickX < screenWidth * 0.3) {
+                                this.prev();
+                            }
+                        }
+
+                        // Modal triggers
                         const teamNode = e.target.closest('.team-node');
                         const taskCard = e.target.closest('.clickable-card[data-task-id]');
                         const timelineCard = e.target.closest('.timeline-card');
@@ -1036,7 +1085,7 @@
                 }
 
                 goTo(index, isInitial = false) {
-                    if (this.isAnimating || (index >= slideData.length) || (index === this.currentSlide && !isInitial)) return;
+                    if (this.isAnimating || (index >= slideData.length) || (index < 0) || (index === this.currentSlide && !isInitial)) return;
                     this.isAnimating = true;
                     
                     if (this.activeAnimations[this.currentSlide]) {
@@ -1053,8 +1102,7 @@
                     this.initAnimationForSlide(this.currentSlide);
                     this.updateUI();
 
-                    if ((slideData[this.currentSlide].id === 'posters' || slideData[this.currentSlide].id === 'lighting') && typeof window.PinUtils !== 'undefined') {
-                        // The Pinterest script sometimes needs a moment after the slide is visible to find the anchor tag.
+                    if ((slideData[this.currentSlide].id === 'posters' || slideData[this.currentSlide].id === 'lighting')) {
                         setTimeout(() => {
                             if (typeof window.PinUtils !== 'undefined') {
                                 window.PinUtils.build();
@@ -1069,8 +1117,8 @@
                         }
                     }, 800);
                 }
-                next() { this.goTo((this.currentSlide + 1) % slideData.length); }
-                prev() { this.goTo((this.currentSlide - 1 + slideData.length) % slideData.length); }
+                next() { this.goTo((this.currentSlide + 1)); }
+                prev() { this.goTo((this.currentSlide - 1)); }
                 handleKeydown(e) {
                     if (this.dom.modalContainer.classList.contains('visible')) {
                         if (e.key === 'Escape') this.hideModal();
@@ -1080,8 +1128,19 @@
                     if (e.key === 'ArrowLeft') this.prev();
                 }
                 updateUI() {
-                    this.dom.dots.innerHTML = slideData.map((_, index) => `<div class="nav-dot ${index === this.currentSlide ? 'active' : ''}" data-index="${index}"></div>`).join('');
                     this.dom.indicator.textContent = `${String(this.currentSlide + 1).padStart(2, '0')} / ${slideData.length}`;
+                    
+                    // Update progress bars
+                    this.dom.progress.innerHTML = slideData.map((_, index) => {
+                        let stateClass = '';
+                        if (index < this.currentSlide) {
+                            stateClass = 'viewed';
+                        } else if (index === this.currentSlide) {
+                            stateClass = 'active';
+                        }
+                        return `<div class="progress-bar-container ${stateClass}"><div class="progress-bar"></div></div>`;
+                    }).join('');
+
                     const isFirstOrLast = this.currentSlide === 0 || this.currentSlide === slideData.length - 1;
                     this.dom.header.style.opacity = isFirstOrLast ? '0' : '1';
                 }
@@ -1117,53 +1176,4 @@
                             </div>
                             <div>
                                 <h4 class="font-semibold text-base text-gray-300 mb-2">Growth Trajectory</h4>
-                                <p class="text-gray-400">${data.trajectory}</p>
-                            </div>
-                            ${tasksHtml ? `<div class="lg:col-span-2">
-                                <h4 class="font-semibold text-base text-gray-300 mb-3 border-t border-gray-800 pt-4">Key Event Tasks</h4>
-                                <ul class="space-y-2">${tasksHtml}</ul>
-                            </div>` : ''}
-                        </div>`;
-                    this.dom.modalContainer.classList.add('visible');
-                }
-                showTaskModal(taskId) {
-                    const task = taskData.flatMap(p => p.tasks).find(t => String(t.id) === taskId);
-                    if (!task) return;
-                    const ownerData = teamData.find(m => m.id === task.owner);
-                    this.dom.modalTitle.innerHTML = `<span style="color:${ownerData ? ownerData.color : 'white'};">${task.title}</span>`;
-                    this.dom.modalBody.innerHTML = `<div class="space-y-6 body-text text-sm"><div><h4 class="font-semibold text-base text-gray-300 mb-1">Description</h4><p class="text-gray-400">${task.desc || 'Details to be added.'}</p></div><div><h4 class="font-semibold text-base text-gray-300 mb-1">Execution Plan</h4><p class="text-gray-400">${task.plan || 'Plan to be added.'}</p></div><div><h4 class="font-semibold text-base text-gray-300 mb-1">Comments</h4><textarea class="w-full bg-gray-900/50 rounded p-2 text-sm border border-gray-700" rows="3" placeholder="Add comments here..."></textarea></div></div>`;
-                    this.dom.modalContainer.classList.add('visible');
-                }
-                showTimelineModal(index) {
-                    const data = timelineData[index];
-                    if (!data) return;
-                    this.dom.modalTitle.innerHTML = `<span style="color:${data.color};">${data.title}</span> <span class="text-gray-400 font-sans text-lg ml-4">${data.time}</span>`;
-                    this.dom.modalBody.innerHTML = `
-                        <div class="body-text space-y-6">
-                           <p>${data.description}</p>
-                           <div class="border-t border-gray-800 pt-6 space-y-4">
-                                <div><h5 class="sub-heading text-sm text-purple-400 mb-1">Guest Experience & Flow</h5><p class="text-sm">${data.tasks.guestExperience}</p></div>
-                                <div><h5 class="sub-heading text-sm text-emerald-400 mb-1">Sonic Architecture</h5><p class="text-sm">${data.tasks.sonic}</p></div>
-                                <div><h5 class="sub-heading text-sm text-yellow-400 mb-1">Operations & Logistics</h5><p class="text-sm">${data.tasks.operations}</p></div>
-                           </div>
-                        </div>`;
-                    this.dom.modalContainer.classList.add('visible');
-                }
-                showVenueModal(areaId) {
-                    const data = venueHotspotData[areaId];
-                    if (!data) return;
-                    this.dom.modalTitle.innerHTML = `<span style="color:${data.color};">${data.title}</span>`;
-                    this.dom.modalBody.innerHTML = `<p class="body-text">${data.text}</p>`;
-                    this.dom.modalContainer.classList.add('visible');
-                }
-                hideModal() {
-                    this.dom.modalContainer.classList.remove('visible');
-                    setTimeout(() => { this.dom.modalBody.innerHTML = ''; }, 400);
-                }
-            }
-            
-            new App({ slideData, timelineData, teamData, taskData, venueHotspotData });
-        });
-    </script>
-</body>
-</html>
+                                <p class="text-gray-400">${data.trajectory}<
