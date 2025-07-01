@@ -267,6 +267,43 @@
             height: 100%;
             max-width: 1200px;
         }
+
+        /* Task Planner Layout */
+        .task-planner-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        @media (min-width: 1024px) {
+            .task-planner-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 2.5rem;
+            }
+        }
+        .task-phase-block {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+        .task-card-small {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .task-card-small:last-child {
+            border-bottom: none;
+        }
+        .task-owner-badge {
+            flex-shrink: 0;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.15rem 0.5rem;
+            border-radius: 99px;
+            text-transform: uppercase;
+        }
         
     </style>
 </head>
@@ -351,7 +388,11 @@
                     <div id="hotspots-container"></div>
                 </div><div class="card reveal-item" style="--delay: 0.4s;"><h3 class="sub-heading text-emerald-400 mb-4 text-base md:text-xl">Strategic Advantages</h3><ul class="body-text text-sm space-y-3 list-disc list-inside"><li><strong>Narrative Authenticity:</strong> Sextant's Ethiopian coffee heritage offers a unique, defensible brand story.</li><li><strong>Spatial Efficiency:</strong> The L-shaped bar is operationally ideal for a DJ booth and managing flow.</li><li><strong>High-Value Accessibility:</strong> Steps from 16th St BART, removing friction for attendance.</li></ul><h3 class="sub-heading text-purple-400 my-4 pt-4 border-t border-gray-800 text-base md:text-xl">Target Demographics Profile</h3><ul class="body-text text-sm space-y-3 list-disc list-inside"><li><strong>Concentrated Audience:</strong> 32,000+ residents aged 25-44 in the Mission, with a median household income of $175k.</li><li><strong>Experience Spenders:</strong> This group allocates ~20% of discretionary income to experiences.</li><li><strong>Digital Natives:</strong> Hyper-connected and active in niche digital communities.</li></ul></div></div>` },
                 { id: 'team', title: 'Neural Nexus Activation', content: `<div class="slide-content-wrapper"><div class="text-center reveal-item"><p class="body-text mx-auto">This team is the engine. Each member is a critical node in a network designed for high-fidelity execution. Click a node to explore their function and growth trajectory within the Surface Tension ecosystem.</p></div><div id="circuit-board-container" class="mt-8 md:mt-12 reveal-item" style="--delay: 0.2s;"></div></div>` },
-                { id: 'tasks', title: 'Task Harmonics & Flow', content: `<div class="text-center reveal-item"><p class="body-text mx-auto">This is our detailed operational roadmap. This plan is designed for clarity and accountability. For granular, real-time status updates, we will use our shared <a href="https://www.notion.so" target="_blank" class="text-teal-400 hover:underline">Notion database</a>.</p></div><div id="task-planner" class="mt-8 md:mt-12 space-y-8"></div>` },
+                { 
+                    id: 'tasks', 
+                    title: 'Task Harmonics & Flow', 
+                    content: `<div class="text-center reveal-item"><p class="body-text mx-auto">This is our detailed operational roadmap, focusing on accountability and real-time execution for event day.</p></div><div id="task-planner" class="mt-8 md:mt-12 space-y-8"></div>` 
+                },
                 { 
                     id: 'posters', 
                     title: 'Poster Manifestation', 
@@ -366,24 +407,20 @@
                     id: 'projections', 
                     title: 'Projection Consciousness', 
                     content: `<div class="w-full max-w-6xl mx-auto">
-                                <div class="text-center reveal-item"><p class="body-text mx-auto mb-8">Our dynamic canvas. We will transform the venue's glass facade into a living entity using a two-way projection system to create ethereal depth and intrigue.</p></div>
-                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center reveal-item" style="--delay: 0.2s;">
-                                    <div class="w-full aspect-video rounded-lg overflow-hidden bg-black border border-gray-800">
-                                       <iframe id="projection-player" class="w-full h-full" src="https://player.vimeo.com/video/451394363?autoplay=1&loop=1&autopause=0&muted=1&title=0&byline=0&portrait=0" title="Projection Reference Player" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                                <div class="text-center reveal-item"><p class="body-text mx-auto mb-8">Our dynamic canvas. We will transform the venue's glass facade into a living entity using a single projector and layered fabrics to create a mesmerizing, pseudo-3D effect.</p></div>
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center reveal-item" style="--delay: 0.2s;">
+                                    <div class="space-y-6 order-2 lg:order-1">
+                                        <div>
+                                            <h4 class="sub-heading text-lg text-emerald-400 mb-2">Concept: The Living Membrane</h4>
+                                            <p class="body-text text-sm">We will create a multi-layered projection surface. A sheer, semi-transparent fabric like **White Organza or Voile** (under $50) will hang 1-2 feet in front of a taught, opaque **White Spandex** screen. A single, standard-throw projector from inside illuminates both, creating real parallax and a holographic, ethereal depth that shifts with the viewer's position.</p>
+                                        </div>
+                                        <div>
+                                            <h4 class="sub-heading text-lg text-purple-400 mb-3">Director's Brief: Pratt to Auguste</h4>
+                                            <p class="body-text text-sm italic">"Auguste, don't think of this as a screen. It's a membrane. The visuals must feel like they're breathing. We'll use audio-reactive particle systems that swirl and collect on the front layer, while more subtle, blurred color fields wash over the back. The content itself should create the 3D illusion: moiré patterns that interfere, caustic light effects that feel liquid, and focus-pulling simulations that shift between the fabric layers. It should be mesmerizing, organic, and feel alive."</p>
+                                        </div>
                                     </div>
-                                    <div class="space-y-6">
-                                        <div>
-                                            <h4 class="sub-heading text-lg text-emerald-400 mb-2">The Concept: Ethereal Depth</h4>
-                                            <p class="body-text text-sm">By projecting onto a transparent film from both inside and outside, we create a layered, holographic effect. Interior visuals are detailed and immersive for guests, while exterior visuals are simpler, designed to capture street-level attention and create a mysterious, alluring glow.</p>
-                                        </div>
-                                        <div>
-                                            <h4 class="sub-heading text-lg text-purple-400 mb-3">Technical Breakdown</h4>
-                                            <ul class="space-y-3 body-text text-sm">
-                                                <li class="flex items-start"><svg class="w-5 h-5 mr-3 mt-1 text-purple-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M12 6V4m0 16v-2M8 12a4 4 0 118 0 4 4 0 01-8 0z"></path></svg><span><strong>Surface:</strong> Transparent rear-projection film applied to the interior of the glass facade.</span></li>
-                                                <li class="flex items-start"><svg class="w-5 h-5 mr-3 mt-1 text-purple-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.55a2.5 2.5 0 010 4l-4.55 2.5M4 10h8a2 2 0 012 2v0a2 2 0 01-2 2H4v0a2 2 0 01-2-2v0a2 2 0 012-2h.01"></path></svg><span><strong>Projectors:</strong> Two high-lumen (5000+) short-throw projectors. One inside for high-res particle systems, one outside for ambient color washes.</span></li>
-                                                <li class="flex items-start"><svg class="w-5 h-5 mr-3 mt-1 text-purple-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg><span><strong>Software:</strong> A dedicated media server running TouchDesigner or Resolume for live, audio-reactive visual generation and mapping.</span></li>
-                                            </ul>
-                                        </div>
+                                    <div class="w-full aspect-video rounded-lg overflow-hidden bg-black border border-gray-800 order-1 lg:order-2">
+                                       <iframe id="projection-player" class="w-full h-full" src="https://player.vimeo.com/video/167384387?autoplay=1&loop=1&autopause=0&muted=1&title=0&byline=0&portrait=0" title="Projection Reference Player" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
                                     </div>
                                 </div>
                             </div>` 
@@ -416,27 +453,64 @@
                 { id: 'zoe', name: 'Zoe', role: 'Graphic Designer', color: 'var(--teal)', duties: "Develops tactical graphics (social media assets, menu details) based on Diana's core brand design. Manages print production workflow and quality control.", trajectory: "Expand your role from print production to leading the design and creation of all physical brand touchpoints, from material sourcing to final production.", tasks: ["Produce all social media assets", "Manage menu print production", "QA all print materials"] },
             ];
             const taskData = [
-                { phase: 'Week 1: Foundations (Jul 1-6)', tasks: [
-                    { id: 1, title: 'Finalize Partnership Agreement', owner: 'riley', status: 'Completed', dates: {start:'20250701', end:'20250701'}, desc: 'Finalize and sign the partnership agreement with Sextant, locking in financial terms, responsibilities, and event date.', plan: 'Review final draft with Pratt, send to Sextant for signature via DocuSign. Store final copy in shared drive.' },
-                    { id: 2, title: 'Launch Microsite & Seed Password', owner: 'pratt', status: 'In Progress', dates: {start:'20250702', end:'20250705'}, desc: 'Deploy the password-protected "STILLNESS" microsite to begin collecting the initial email list.', plan: 'Finish Webflow build. Deploy to Vercel. Begin leaking password in 3 targeted Discord communities and via 5 tastemaker Instagram accounts.' },
-                    { id: 3, title: 'Finalize Core Visual Identity', owner: 'diana', status: 'Completed', dates: {start:'20250701', end:'20250702'}, desc: 'Lock in the final logo, color palette, and typography suite for all brand assets.', plan: 'Present final direction to Pratt. Create a shared Figma file with all approved assets for the team to use.' },
-                    { id: 10, title: 'Artist Curation & Outreach', owner: 'bill', status: 'In Progress', dates: {start:'20250702', end:'20250706'}, desc: 'Identify and secure 3-5 local artists to showcase their work at the event.', plan: 'Research local artists on Instagram and through gallery contacts. Send out initial outreach emails with a one-sheet about the event and the vision.' },
+                { phase: 'Week 1-3: Pre-Production', tasks: [
+                    { id: 1, title: 'Finalize Partnership Agreement', owner: 'riley', status: 'Completed' },
+                    { id: 2, title: 'Launch Microsite & Seed Password', owner: 'pratt', status: 'In Progress' },
+                    { id: 3, title: 'Finalize Core Visual Identity', owner: 'diana', status: 'Completed' },
+                    { id: 10, title: 'Artist Curation & Outreach', owner: 'bill', status: 'In Progress' },
+                    { id: 4, title: 'Finalize Beverage Menu & Sponsorships', owner: 'pratt', status: 'Not Started' },
+                    { id: 5, title: 'Design A5 Posters & Digital Trailer', owner: 'diana', status: 'Not Started' },
+                    { id: 6, title: 'Source Print & Fabric Vendors', owner: 'riley', status: 'Not Started' },
+                    { id: 11, title: 'Develop "Living Membrane" Visuals', owner: 'auguste', status: 'Not Started' },
+                    { id: 7, title: 'Execute "Guerrilla" Projection Test', owner: 'auguste', status: 'Not Started' },
+                    { id: 8, title: 'Open Ticket Sales & Release Trailer', owner: 'diana', status: 'Not Started' },
+                    { id: 12, title: 'Confirm Artist Logistics', owner: 'bill', status: 'Not Started'}
                 ]},
-                { phase: 'Week 2: Production & Outreach (Jul 7-13)', tasks: [
-                    { id: 4, title: 'Finalize Beverage Menu & Sponsorships', owner: 'pratt', status: 'Not Started', dates: {start:'20250707', end:'20250711'}, desc: 'Lock in the full drink menu and secure in-kind sponsorships from beverage partners.', plan: 'Send final proposal to Ghia and Curious Elixirs. If no response by July 9th, move to backup options. Finalize ingredient order list for Sextant.' },
-                    { id: 5, title: 'Design A5 Posters & Digital Trailer', owner: 'diana', status: 'Not Started', dates: {start:'20250707', end:'20250713'}, desc: 'Create the primary marketing assets for the campaign.', plan: 'Design the A5 poster based on "The Invitation" concept. Create a 30-second motion graphic trailer storyboard for Pratt\'s approval.' },
-                    { id: 6, title: 'Source Print Vendors', owner: 'riley', status: 'Not Started', dates: {start:'20250708', end:'20250710'}, desc: 'Identify and get quotes from local printers for poster and menu printing.', plan: 'Research vendors focusing on quality and cost-effectiveness. Top candidates: 1) <a href="https://www.apostrophecopy.com/" target="_blank" class="text-teal-400">Apostrophe (Mission)</a> for speed/location. 2) <a href="https://www.dependableletterpress.com/" target="_blank" class="text-teal-400">Dependable Letterpress</a> for high-quality, specialty prints. Get quotes for A5 120lb matte card stock.' },
-                    { id: 11, title: 'Initial Projection Concepting', owner: 'auguste', status: 'Not Started', dates: {start:'20250707', end:'20250711'}, desc: 'Develop the visual narrative and technical approach for the projection mapping.', plan: 'Create a mood board and initial styleframes in TouchDesigner. Present concepts to Pratt and Diana for feedback.' },
-                ]},
-                { phase: 'Week 3: Activation & Finalization (Jul 14-20)', tasks: [
-                    { id: 7, title: 'Execute "Guerrilla" Projection Test', owner: 'auguste', status: 'Not Started', dates: {start:'20250717', end:'20250718'}, desc: 'Create real-world intrigue with ephemeral visual art.', plan: 'Scout 2-3 high-foot-traffic locations in the Mission and Hayes Valley. Execute late-night projections of the animated logo and portal visuals.' },
-                    { id: 8, title: 'Open Ticket Sales & Release Trailer', owner: 'diana', status: 'Not Started', dates: {start:'20250716', end:'20250716'}, desc: 'Begin converting interest into attendees.', plan: 'Set up ticketing page on Luma. Release the 30s trailer on Instagram and push to the email list with the ticket link.' },
-                    { id: 12, title: 'Confirm Artist Logistics', owner: 'bill', status: 'Not Started', dates: {start: '20250714', end: '20250718'}, desc: 'Finalize all details with selected artists.', plan: 'Confirm artwork dimensions, installation requirements, and load-in/load-out times with each artist.'}
-                ]},
-                { phase: 'Week 4: GO WEEK (Jul 21-26)', tasks: [
-                    { id: 9, title: 'Coordinate A/V and Lighting Load-in', owner: 'riley', status: 'Not Started', dates: {start:'20250725', end:'20250725'}, desc: 'Manage all technical equipment delivery and setup on the day before the event.', plan: 'Create a detailed load-in schedule for all vendors. Be on-site to supervise.' },
-                    { id: 13, title: 'Final Technical Rehearsal', owner: 'auguste', status: 'Not Started', dates: {start: '20250725', end: '20250725'}, desc: 'Calibrate all projection and lighting cues with the DJ\'s planned set.', plan: 'Full run-through of the event timeline with sound and visuals to ensure seamless transitions.'}
-                ]}
+                { 
+                    phase: 'GO DAY: Load-in & Setup (2pm-5pm)', 
+                    tasks: [
+                        { id: 20, title: 'On-site producer, manage vendor arrivals (A/V, Security)', owner: 'riley' },
+                        { id: 21, title: 'Supervise art installation with Bill', owner: 'riley' },
+                        { id: 22, title: 'Establish team comms channel (Signal/Walkie)', owner: 'ivan' },
+                        { id: 23, title: 'Install & calibrate projector and fabric screens', owner: 'auguste' },
+                        { id: 24, title: 'Run technical rehearsal with DJ Vixxa (audio-reactivity)', owner: 'auguste' },
+                        { id: 25, title: 'Set up and test lighting plot with Lorenzo', owner: 'pratt' },
+                        { id: 26, title: 'Full sound system check & level calibration', owner: 'vixxa' },
+                        { id: 27, title: 'Set up check-in station (Luma, signage)', owner: 'waseem' },
+                        { id: 28, title: 'Final check on art placement & lighting', owner: 'bill' },
+                        { id: 29, title: 'Walkthrough with security team', owner: 'ivan' },
+                    ]
+                },
+                { 
+                    phase: 'GO DAY: Live Event (5pm-10pm)', 
+                    tasks: [
+                        { id: 30, title: 'Manage entry flow & troubleshoot ticketing', owner: 'waseem' },
+                        { id: 31, title: 'Host guests, facilitate connections, vibe checks', owner: 'nate' },
+                        { id: 32, title: 'Capture live social media content (stories, reels)', owner: 'nate' },
+                        { id: 33, title: 'Perform live, audio-reactive VJ set', owner: 'auguste' },
+                        { id: 34, title: 'Operate dynamic lighting cues, adapt to music', owner: 'lorenzo' },
+                        { id: 35, title: 'Perform narrative DJ set, read the room energy', owner: 'vixxa' },
+                        { id: 36, title: 'Host VIPs, give creative cues to team', owner: 'pratt' },
+                        { id: 37, title: 'Co-host, network, document for brand portfolio', owner: 'diana' },
+                        { id: 38, title: 'Capture atmospheric shots on 16mm film', owner: 'lorenzo' },
+                        { id: 39, title: 'Act as floating problem-solver, support team', owner: 'ivan' },
+                        { id: 40, title: 'Monitor bar inventory and operations', owner: 'riley' },
+                        { id: 41, 'title': 'Liaise with artists, ensure they are comfortable', owner: 'bill' }
+                    ]
+                },
+                { 
+                    phase: 'GO DAY: Breakdown (10pm-12am)', 
+                    tasks: [
+                        { id: 50, title: 'Manage guest departure, ensure safe exit', owner: 'nate' },
+                        { id: 51, title: 'Supervise vendor load-out (A/V first)', owner: 'riley' },
+                        { id: 52, title: 'Breakdown projection screens & equipment', owner: 'auguste' },
+                        { id: 53, title: 'Breakdown lighting equipment', owner: 'lorenzo' },
+                        { id: 54, title: 'Coordinate art de-installation with Bill', owner: 'riley' },
+                        { id: 55, title: 'Final venue sweep and cleanup checklist', owner: 'ivan' },
+                        { id: 56, title: 'Secure all rented equipment for pickup', owner: 'riley' },
+                        { id: 57, title: 'Final payment processing for on-site staff/vendors', owner: 'riley' },
+                    ]
+                }
             ];
             const venueHotspotData = {
                 bar: { title: "L-Shape Bar & DJ Booth", text: "The flipped L-shaped bar is the command center, housing the DJ booth for a seamless sonic and service experience.", pos: { x: '10%', y: '15%' }, color: 'var(--yellow)' },
@@ -702,7 +776,12 @@
             }
 
             class App {
-                constructor() {
+                constructor(data) {
+                    this.slideData = data.slideData;
+                    this.timelineData = data.timelineData;
+                    this.teamData = data.teamData;
+                    this.taskData = data.taskData;
+                    this.venueHotspotData = data.venueHotspotData;
                     this.currentSlide = 0;
                     this.isAnimating = false;
                     this.activeAnimations = {};
@@ -732,7 +811,7 @@
                 }
                 renderSlides() {
                     if (!this.dom.container) return;
-                    const slidesHtml = slideData.map((data, index) => {
+                    const slidesHtml = this.slideData.map((data, index) => {
                         const isPinterestSlide = data.id === 'posters' || data.id === 'lighting';
                         const wrapperClass = isPinterestSlide ? '' : 'slide-content-wrapper';
                         
@@ -775,7 +854,7 @@
                      const fragment = document.createDocumentFragment();
                      const bar = document.createElement('div');
                      bar.className = 'timeline-bar';
-                     bar.innerHTML = timelineData.map((item, index) => `
+                     bar.innerHTML = this.timelineData.map((item, index) => `
                         <div class="timeline-card" data-index="${index}">
                             <div class="time-indicator" style="color:${item.color}">${item.time}</div>
                             <div class="title-indicator">${item.title}</div>
@@ -796,7 +875,7 @@
                     const teamLayout = { pratt: { pos: { x: 40, y: 15 }, tier: 'leadership' }, diana: { pos: { x: 60, y: 15 }, tier: 'leadership' }, riley: { pos: { x: 50, y: 35 }, tier: 'leadership' }, zoe: { pos: { x: 78, y: 22 }, tier: 'creative' }, vixxa: { pos: { x: 50, y: 60 }, tier: 'performance' }, auguste: { pos: { x: 20, y: 35 }, tier: 'creative' }, lorenzo: { pos: { x: 80, y: 45 }, tier: 'creative' }, bill:  { pos: { x: 20, y: 60 }, tier: 'curation' }, nate:  { pos: { x: 80, y: 70 }, tier: 'community' }, waseem:{ pos: { x: 35, y: 85 }, tier: 'community' }, ivan:  { pos: { x: 65, y: 85 }, tier: 'community' } };
                     this.nodePositions = {};
                     
-                    teamData.forEach((member, i) => {
+                    this.teamData.forEach((member, i) => {
                         if (teamLayout[member.id]) {
                             const { pos, tier } = teamLayout[member.id];
                             this.nodePositions[member.id] = pos;
@@ -849,24 +928,22 @@
                 }
                 renderTaskPlanner(container) {
                     if(!container) return;
-                    const statusColors = { 'Completed': 'var(--emerald)', 'In Progress': 'var(--yellow)', 'Not Started': 'var(--text-secondary)' };
                     const ownerColors = { pratt: 'var(--emerald)', diana: 'var(--purple)', riley: 'var(--yellow)', vixxa: 'var(--teal)', lorenzo: 'var(--teal)', zoe: 'var(--teal)', waseem:'var(--teal)', nate:'var(--teal)',ivan:'var(--teal)', bill: 'var(--teal)', auguste: 'var(--teal)' };
-                    container.innerHTML = taskData.map(phase => `
-                        <div class="reveal-item">
+                    container.innerHTML = `<div class="task-planner-grid">${this.taskData.map(phase => `
+                        <div class="task-phase-block reveal-item">
                             <h3 class="sub-heading text-base text-purple-400 mb-4">${phase.phase}</h3>
-                            <div class="space-y-3">${phase.tasks.map(task => `
-                                <div class="flex items-center gap-4 p-3 bg-gray-900/40 rounded-lg clickable-card" data-task-id="${task.id}">
-                                    <div class="w-4 h-4 rounded-full flex-shrink-0" style="background-color: ${statusColors[task.status]};" title="${task.status}"></div>
-                                    <div class="flex-grow"><p>${task.title}</p></div>
-                                    <div class="text-xs font-semibold px-2 py-1 rounded-full capitalize" style="background-color: ${ownerColors[task.owner] || 'gray'}33; color: ${ownerColors[task.owner] || 'gray'};">${task.owner}</div>
+                            <div class="space-y-1">${phase.tasks.map(task => `
+                                <div class="task-card-small clickable-card" data-task-id="${task.id}">
+                                    <div class="task-owner-badge" style="background-color: ${ownerColors[task.owner] || 'gray'}33; color: ${ownerColors[task.owner] || 'gray'};">${task.owner}</div>
+                                    <div class="text-sm text-gray-300">${task.title}</div>
                                 </div>`).join('')}
                             </div>
-                        </div>`).join('');
+                        </div>`).join('')}</div>`;
                 }
                 renderVenueHotspots(container) {
                     if(!container) return;
                     const fragment = document.createDocumentFragment();
-                    Object.entries(venueHotspotData).forEach(([key, data]) => {
+                    Object.entries(this.venueHotspotData).forEach(([key, data]) => {
                         const hotspot = document.createElement('div');
                         hotspot.className = 'venue-hotspot clickable-card';
                         hotspot.dataset.area = key;
@@ -892,16 +969,11 @@
                         const taskCard = e.target.closest('.clickable-card[data-task-id]');
                         const timelineCard = e.target.closest('.timeline-card');
                         const venueHotspot = e.target.closest('.venue-hotspot');
-                        const projectionLink = e.target.closest('.projection-link');
                         
                         if (teamNode) this.showTeamModal(teamNode.dataset.memberId);
                         else if (taskCard) this.showTaskModal(taskCard.dataset.taskId);
                         else if (timelineCard) this.showTimelineModal(timelineCard.dataset.index);
                         else if (venueHotspot) this.showVenueModal(venueHotspot.dataset.area);
-                        else if (projectionLink) {
-                            e.preventDefault();
-                            this.updateProjectionVideo(projectionLink);
-                        }
                     });
 
                     const circuitBoard = this.dom.app.querySelector('#circuit-board-container');
@@ -935,7 +1007,7 @@
                     
                     const paths = circuitBoard.querySelectorAll(`.circuit-path[data-from="${memberId}"], .circuit-path[data-to="${memberId}"]`);
                     const dataFlows = circuitBoard.querySelectorAll(`.data-flow[data-from="${memberId}"], .data-flow[data-to="${memberId}"]`);
-                    const memberData = teamData.find(m => m.id === memberId);
+                    const memberData = this.teamData.find(m => m.id === memberId);
                     
                     if(memberData) {
                         paths.forEach(p => {
@@ -958,7 +1030,7 @@
                 }
 
                 goTo(index, isInitial = false) {
-                    if (this.isAnimating || (index >= this.slides.length) || (index === this.currentSlide && !isInitial)) return;
+                    if (this.isAnimating || (index >= this.slideData.length) || (index === this.currentSlide && !isInitial)) return;
                     this.isAnimating = true;
                     
                     if (this.activeAnimations[this.currentSlide]) {
@@ -975,7 +1047,7 @@
                     this.initAnimationForSlide(this.currentSlide);
                     this.updateUI();
 
-                    if ((slideData[this.currentSlide].id === 'posters' || slideData[this.currentSlide].id === 'lighting') && typeof window.PinUtils !== 'undefined') {
+                    if ((this.slideData[this.currentSlide].id === 'posters' || this.slideData[this.currentSlide].id === 'lighting') && typeof window.PinUtils !== 'undefined') {
                         // The Pinterest script sometimes needs a moment after the slide is visible to find the anchor tag.
                         setTimeout(() => {
                            window.PinUtils.build();
@@ -989,8 +1061,8 @@
                         }
                     }, 800);
                 }
-                next() { this.goTo((this.currentSlide + 1) % this.slides.length); }
-                prev() { this.goTo((this.currentSlide - 1 + this.slides.length) % this.slides.length); }
+                next() { this.goTo((this.currentSlide + 1) % this.slideData.length); }
+                prev() { this.goTo((this.currentSlide - 1 + this.slideData.length) % this.slideData.length); }
                 handleKeydown(e) {
                     if (this.dom.modalContainer.classList.contains('visible')) {
                         if (e.key === 'Escape') this.hideModal();
@@ -1000,9 +1072,9 @@
                     if (e.key === 'ArrowLeft') this.prev();
                 }
                 updateUI() {
-                    this.dom.dots.innerHTML = slideData.map((_, index) => `<div class="nav-dot ${index === this.currentSlide ? 'active' : ''}" data-index="${index}"></div>`).join('');
-                    this.dom.indicator.textContent = `${String(this.currentSlide + 1).padStart(2, '0')} / ${slideData.length}`;
-                    const isFirstOrLast = this.currentSlide === 0 || this.currentSlide === slideData.length - 1;
+                    this.dom.dots.innerHTML = this.slideData.map((_, index) => `<div class="nav-dot ${index === this.currentSlide ? 'active' : ''}" data-index="${index}"></div>`).join('');
+                    this.dom.indicator.textContent = `${String(this.currentSlide + 1).padStart(2, '0')} / ${this.slideData.length}`;
+                    const isFirstOrLast = this.currentSlide === 0 || this.currentSlide === this.slideData.length - 1;
                     this.dom.header.style.opacity = isFirstOrLast ? '0' : '1';
                 }
                 initAnimationForSlide(index) {
@@ -1011,7 +1083,7 @@
                         this.activeAnimations[index].setActive(true);
                         return;
                      }
-                     const slideId = slideData[index]?.id;
+                     const slideId = this.slideData[index]?.id;
                      const canvas = this.slides[index].querySelector('canvas');
                      if (!canvas) return;
                      const AnimationClass = { 'cover': CoverAnimation, 'philosophy': PhilosophyAnimation, 'experience': RippleAnimation, 'final': FinaleAnimation }[slideId];
@@ -1021,7 +1093,7 @@
                      }
                 }
                 showTeamModal(memberId) {
-                    const data = teamData.find(m => m.id === memberId);
+                    const data = this.teamData.find(m => m.id === memberId);
                     if (!data) return;
                     this.dom.modalTitle.innerHTML = `<span style="color:${data.color};">${data.name}</span>`;
                     const tasksHtml = (data.tasks || []).map(task => `
@@ -1047,16 +1119,15 @@
                     this.dom.modalContainer.classList.add('visible');
                 }
                 showTaskModal(taskId) {
-                    const task = taskData.flatMap(p => p.tasks).find(t => String(t.id) === taskId);
+                    const task = this.taskData.flatMap(p => p.tasks).find(t => String(t.id) === taskId);
                     if (!task) return;
-                    const ownerData = teamData.find(m => m.id === task.owner);
+                    const ownerData = this.teamData.find(m => m.id === task.owner);
                     this.dom.modalTitle.innerHTML = `<span style="color:${ownerData ? ownerData.color : 'white'};">${task.title}</span>`;
-                    const calendarLink = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`ST: ${task.title}`)}&dates=${task.dates.start}T090000/${task.dates.end}T170000&details=${encodeURIComponent(task.desc)}&location=${encodeURIComponent('Sextant Coffee Roasters, 539 Valencia St, San Francisco, CA')}`;
-                    this.dom.modalBody.innerHTML = `<div class="space-y-6 body-text text-sm"><div><h4 class="font-semibold text-base text-gray-300 mb-1">Description</h4><p class="text-gray-400">${task.desc}</p></div><div><h4 class="font-semibold text-base text-gray-300 mb-1">Execution Plan</h4><p class="text-gray-400">${task.plan}</p></div><div><h4 class="font-semibold text-base text-gray-300 mb-1">Comments</h4><textarea class="w-full bg-gray-900/50 rounded p-2 text-sm border border-gray-700" rows="3" placeholder="Add comments here..."></textarea></div><a href="${calendarLink}" target="_blank" class="inline-block bg-teal-500 text-black font-bold text-sm px-4 py-2 rounded-lg hover:bg-teal-400 transition-colors">Add to Google Calendar</a></div>`;
+                    this.dom.modalBody.innerHTML = `<div class="space-y-6 body-text text-sm"><div><h4 class="font-semibold text-base text-gray-300 mb-1">Description</h4><p class="text-gray-400">${task.desc || 'Details to be added.'}</p></div><div><h4 class="font-semibold text-base text-gray-300 mb-1">Execution Plan</h4><p class="text-gray-400">${task.plan || 'Plan to be added.'}</p></div><div><h4 class="font-semibold text-base text-gray-300 mb-1">Comments</h4><textarea class="w-full bg-gray-900/50 rounded p-2 text-sm border border-gray-700" rows="3" placeholder="Add comments here..."></textarea></div></div>`;
                     this.dom.modalContainer.classList.add('visible');
                 }
                 showTimelineModal(index) {
-                    const data = timelineData[index];
+                    const data = this.timelineData[index];
                     if (!data) return;
                     this.dom.modalTitle.innerHTML = `<span style="color:${data.color};">${data.title}</span> <span class="text-gray-400 font-sans text-lg ml-4">${data.time}</span>`;
                     this.dom.modalBody.innerHTML = `
@@ -1071,40 +1142,19 @@
                     this.dom.modalContainer.classList.add('visible');
                 }
                 showVenueModal(areaId) {
-                    const data = venueHotspotData[areaId];
+                    const data = this.venueHotspotData[areaId];
                     if (!data) return;
                     this.dom.modalTitle.innerHTML = `<span style="color:${data.color};">${data.title}</span>`;
                     this.dom.modalBody.innerHTML = `<p class="body-text">${data.text}</p>`;
                     this.dom.modalContainer.classList.add('visible');
-                }
-                updateProjectionVideo(linkElement) {
-                    const videoId = linkElement.dataset.videoId;
-                    const source = linkElement.dataset.source;
-                    const iframe = document.getElementById('projection-player');
-                    
-                    if (!videoId || !source || !iframe) return;
-
-                    let sourceUrl = '';
-                    if (source === 'vimeo') {
-                        sourceUrl = `https://player.vimeo.com/video/${videoId}?autoplay=1&loop=1&autopause=0&muted=1&title=0&byline=0&portrait=0`;
-                    } else { // youtube
-                        sourceUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&modestbranding=1&rel=0`;
-                    }
-                    iframe.src = sourceUrl;
-                    
-                    // Update active class
-                    const container = document.getElementById('projection-links-container');
-                    if(container) {
-                        container.querySelectorAll('.projection-link').forEach(link => link.classList.remove('active'));
-                        linkElement.classList.add('active');
-                    }
                 }
                 hideModal() {
                     this.dom.modalContainer.classList.remove('visible');
                     setTimeout(() => { this.dom.modalBody.innerHTML = ''; }, 400);
                 }
             }
-            new App();
+            
+            new App({ slideData, timelineData, teamData, taskData, venueHotspotData });
         });
     </script>
 </body>
