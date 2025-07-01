@@ -210,7 +210,11 @@
         .flicker-purple { color: var(--purple); animation: flicker 1.5s infinite alternate; }
         
         /* === TEAM SLIDE (NEURAL NEXUS) STYLES === */
-        #circuit-board-container { position: relative; width: 100%; max-width: 1100px; margin: auto; height: 70vh; }
+        #circuit-board-container { position: relative; width: 100%; max-width: 1100px; margin: auto; }
+        @media (min-width: 768px) {
+            #circuit-board-container { height: 70vh; }
+        }
+        
         #circuit-background { position: absolute; inset: 0; z-index: 0; }
         #circuit-background::before { content: ''; position: absolute; top: 15%; left: 50%; width: 1px; height: 1px; border-radius: 50%; transform: translate(-50%, -50%); animation: pulse-background 5s infinite ease-out; }
         @keyframes pulse-background {
@@ -218,7 +222,11 @@
             80% { box-shadow: 0 0 60px 400px rgba(168, 85, 247, 0), 0 0 60px 400px rgba(16, 185, 129, 0); opacity: 0; }
             100% { opacity: 0; }
         }
-        #circuit-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        #circuit-svg { display: none; } /* Hide SVG by default */
+        @media (min-width: 768px) {
+            #circuit-svg { display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        }
+
         .circuit-path {
             stroke: #4A5568; stroke-width: 0.2; fill: none;
             stroke-dasharray: 1000; stroke-dashoffset: 1000;
@@ -231,18 +239,42 @@
             stroke-dasharray: 4 8; stroke-dashoffset: 12;
             transition: stroke 0.4s ease, opacity 0.4s ease;
         }
+        
+        .team-node-container-mobile { display: flex; flex-direction: column; gap: 1rem; }
+        @media (min-width: 768px) {
+            .team-node-container-mobile { display: none; }
+        }
+
         .team-node {
-            position: absolute; z-index: 2; width: 130px; text-align: center; padding: 0.75rem;
-            transform: translate(-50%, -50%);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
         }
-         @media (min-width: 768px) {
-            .team-node { width: 150px; padding: 1rem; }
+        @media (min-width: 768px) {
+            .team-node {
+                position: absolute;
+                width: 150px;
+                padding: 1rem;
+                flex-direction: column;
+                gap: 0;
+                transform: translate(-50%, -50%);
+            }
         }
+
         .team-node.is-active, .team-node:hover {
-            transform: translate(-50%, -50%) scale(1.1);
+            transform: translateY(-5px) scale(1.02);
             box-shadow: 0 0 20px var(--shadow-color, rgba(255,255,255,0.3)), 0 0 30px var(--shadow-color, rgba(255,255,255,0.2));
         }
+         @media (min-width: 768px) {
+            .team-node.is-active, .team-node:hover {
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+        }
+        
         .circuit-path.is-active {
             stroke: var(--active-color, #fff);
         }
@@ -346,181 +378,187 @@
         document.addEventListener('DOMContentLoaded', () => {
             
             // --- DATA DEFINITIONS ---
-            const slideData = [
-                { 
-                    id: 'cover', 
-                    background: `<canvas id="cover-canvas" class="fullscreen-canvas"></canvas>`,
-                    content: `<div class="slide-content-wrapper flex flex-col h-full">
-                                <div class="flex-grow flex flex-col items-center justify-center text-center">
-                                    <div class="reveal-item">
-                                        <h1 class="display-heading uppercase">SURFACE TENSION</h1>
+            const data = {
+                slideData: [
+                    { 
+                        id: 'cover', 
+                        background: `<canvas id="cover-canvas" class="fullscreen-canvas"></canvas>`,
+                        content: `<div class="slide-content-wrapper flex flex-col h-full">
+                                    <div class="flex-grow flex flex-col items-center justify-center text-center">
+                                        <div class="reveal-item">
+                                            <h1 class="display-heading uppercase">SURFACE TENSION</h1>
+                                        </div>
+                                        <div class="reveal-item" style="--delay: 0.2s;">
+                                            <p class="body-text text-center mt-6 text-lg">DIGITAL DRIP x SEXTANT COFFEE ROASTERS</p>
+                                        </div>
                                     </div>
-                                    <div class="reveal-item" style="--delay: 0.2s;">
-                                        <p class="body-text text-center mt-6 text-lg">DIGITAL DRIP x SEXTANT COFFEE ROASTERS</p>
+                                    <div class="w-full text-center bottom-content reveal-item" style="--delay: 0.4s;">
+                                        <p class="body-text text-base text-gray-400 inline-block">
+                                            <a href="https://www.google.com/calendar/render?action=TEMPLATE&text=Surface+Tension&dates=20250727T000000Z/20250727T050000Z&details=Digital+Drip+x+Sextant+Coffee+Roasters&location=Sextant+Coffee+Roasters%2C+539+Valencia+St%2C+San+Francisco%2C+CA" target="_blank" class="text-emerald-400 font-semibold hover:text-emerald-300 transition-colors">July 26, 2025</a>
+                                            <span class="mx-2 text-gray-600">•</span>feat. 
+                                            <a href="https://soundcloud.com/vixa-2/popular-tracks" target="_blank" class="flicker-purple font-semibold">DJ Vixaa</a>
+                                        </p>
                                     </div>
-                                </div>
-                                <div class="w-full text-center bottom-content reveal-item" style="--delay: 0.4s;">
-                                    <p class="body-text text-base text-gray-400 inline-block">
-                                        <a href="https://www.google.com/calendar/render?action=TEMPLATE&text=Surface+Tension&dates=20250727T000000Z/20250727T050000Z&details=Digital+Drip+x+Sextant+Coffee+Roasters&location=Sextant+Coffee+Roasters%2C+539+Valencia+St%2C+San+Francisco%2C+CA" target="_blank" class="text-emerald-400 font-semibold hover:text-emerald-300 transition-colors">July 26, 2025</a>
-                                        <span class="mx-2 text-gray-600">•</span>feat. 
-                                        <a href="https://soundcloud.com/vixa-2/popular-tracks" target="_blank" class="flicker-purple font-semibold">DJ Vixaa</a>
-                                    </p>
-                                </div>
-                              </div>` 
-                },
-                { id: 'philosophy', title: 'The Portal Philosophy', background: `<canvas id="philosophy-canvas" class="slide-background"></canvas>`, content: `<div class="space-y-8 md:space-y-12"><div class="reveal-item"><p class="sub-heading italic font-light text-gray-200 mx-auto max-w-3xl leading-relaxed" style="font-size: clamp(1.2rem, 4vw, 1.8rem);">We don't create events; we craft membranes between the known and the possible. Temporary zones where stillness finds its frequency, and authentic connection is the current.</p></div><div class="grid md:grid-cols-3 gap-4 md:gap-8 text-left"><div class="card reveal-item" style="--delay: 0.2s;"><h3 class="sub-heading text-purple-400 mb-4 text-base md:text-xl">Cultural Opportunity</h3><ul class="body-text text-sm space-y-3 list-disc list-inside"><li><strong>Experience Dividend:</strong> 78% of millennials in SF prioritize unique experiences.</li><li><strong>Third Space Vacuum:</strong> 65% of professionals seek social hubs beyond home/office.</li><li><strong>Intentional Nightlife:</strong> 45% of consumers seek non-alcoholic-centric nightlife.</li></ul></div><div class="card reveal-item" style="--delay: 0.4s;"><h3 class="sub-heading text-emerald-400 mb-4 text-base md:text-xl">Curated Solution</h3><ul class="body-text text-sm space-y-3 list-disc list-inside"><li><strong>Engineered Serendipity:</strong> Environments designed for authentic connection.</li><li><strong>High-Fidelity Sonics:</strong> A meticulously calibrated audio journey is the narrative.</li><li><strong>Hub for Creative Class:</strong> A signal for those who desire transformation.</li></ul></div><div class="card reveal-item" style="--delay: 0.6s;"><h3 class="sub-heading text-teal-400 mb-4 text-base md:text-xl">Sensory Architecture</h3><ul class="body-text text-sm space-y-3 list-disc list-inside"><li><strong>Calibrated Sonics:</strong> Non-fatiguing, physically-felt sound bath.</li><li><strong>Intentional Ambience:</strong> Minimizing digital distractions.</li><li><strong>Narrative Journey:</strong> A planned progression of sound and light.</li></ul></div></div><p class="text-right text-xs text-gray-500 mt-4 reveal-item" style="--delay: 0.8s;">(Sources: Harris Group 2024, SF Chamber of Commerce 2025, NielsenIQ 2025)</p></div>` },
-                { id: 'experience', title: 'The Digital Drip Experience', background: `<canvas id="ripple-canvas" class="slide-background" style="opacity: 0.5;"></canvas>`, content: `<div class="text-center reveal-item"><p class="body-text mx-auto">A meticulously crafted sensory narrative, architected to guide attendees from a state of arrival to transcendence. This is a turnkey activation that transforms Sextant into an evening cultural hotspot.</p></div><div id="interactive-timeline-container" class="w-full mt-8 md:mt-12 reveal-item" style="--delay: 0.2s;"></div>` },
-                { id: 'venue', title: 'Venue Intelligence', content: `<div class="text-center reveal-item"><p class="body-text mx-auto">Sextant Coffee at <a href="https://maps.google.com/?q=539+Valencia+St,+San+Francisco,+CA" target="_blank" class="text-teal-400 hover:underline">539 Valencia St</a> is more than a location; it's a cultural anchor. Positioned at the nexus of the Mission's creative and culinary scenes, it provides an authentic foundation to engage San Francisco's most discerning demographic.</p></div><div class="grid lg:grid-cols-2 gap-8 mt-8 md:mt-12 items-center"><div id="interactive-venue-layout" class="reveal-item" style="--delay: 0.2s;">
-                    <svg id="venue-blueprint" viewBox="0 0 800 450" class="bg-black/20 rounded-lg border border-gray-800">
-                        <!-- Main Walls -->
-                        <path d="M40 40 L760 40 L760 410 L40 410 Z" stroke="rgba(255,255,255,0.2)" stroke-width="4" fill="none"/>
-                        <path d="M40 40 L760 40 L760 410 L40 410 Z" stroke="rgba(255,255,255,0.4)" stroke-width="1" fill="none"/>
-                        
-                        <!-- L-Shape Bar (Rotated 90deg anti-clockwise) -->
-                        <path d="M42 42 V 250 H 70 V 70 H 250 V 42 Z" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
-                        
-                        <!-- Entrance -->
-                        <path d="M650 410 V 360" stroke-width="8" stroke-linecap="round" stroke="var(--bg-secondary)"/>
-                        <text x="650" y="340" font-family="Inter" font-size="14" fill="rgba(255,255,255,0.4)" text-anchor="middle">ENTRANCE</text>
+                                </div>` 
+                    },
+                    { id: 'philosophy', title: 'The Portal Philosophy', background: `<canvas id="philosophy-canvas" class="slide-background"></canvas>`, content: `<div class="space-y-8 md:space-y-12"><div class="reveal-item"><p class="sub-heading italic font-light text-gray-200 mx-auto max-w-3xl leading-relaxed" style="font-size: clamp(1.2rem, 4vw, 1.8rem);">We don't create events; we craft membranes between the known and the possible. Temporary zones where stillness finds its frequency, and authentic connection is the current.</p></div><div class="grid md:grid-cols-3 gap-4 md:gap-8 text-left"><div class="card reveal-item" style="--delay: 0.2s;"><h3 class="sub-heading text-purple-400 mb-4 text-base md:text-xl">Cultural Opportunity</h3><ul class="body-text text-sm space-y-3 list-disc list-inside"><li><strong>Experience Dividend:</strong> 78% of millennials in SF prioritize unique experiences.</li><li><strong>Third Space Vacuum:</strong> 65% of professionals seek social hubs beyond home/office.</li><li><strong>Intentional Nightlife:</strong> 45% of consumers seek non-alcoholic-centric nightlife.</li></ul></div><div class="card reveal-item" style="--delay: 0.4s;"><h3 class="sub-heading text-emerald-400 mb-4 text-base md:text-xl">Curated Solution</h3><ul class="body-text text-sm space-y-3 list-disc list-inside"><li><strong>Engineered Serendipity:</strong> Environments designed for authentic connection.</li><li><strong>High-Fidelity Sonics:</strong> A meticulously calibrated audio journey is the narrative.</li><li><strong>Hub for Creative Class:</strong> A signal for those who desire transformation.</li></ul></div><div class="card reveal-item" style="--delay: 0.6s;"><h3 class="sub-heading text-teal-400 mb-4 text-base md:text-xl">Sensory Architecture</h3><ul class="body-text text-sm space-y-3 list-disc list-inside"><li><strong>Calibrated Sonics:</strong> Non-fatiguing, physically-felt sound bath.</li><li><strong>Intentional Ambience:</strong> Minimizing digital distractions.</li><li><strong>Narrative Journey:</strong> A planned progression of sound and light.</li></ul></div></div><p class="text-right text-xs text-gray-500 mt-4 reveal-item" style="--delay: 0.8s;">(Sources: Harris Group 2024, SF Chamber of Commerce 2025, NielsenIQ 2025)</p></div>` },
+                    { id: 'experience', title: 'The Digital Drip Experience', background: `<canvas id="ripple-canvas" class="slide-background" style="opacity: 0.5;"></canvas>`, content: `<div class="text-center reveal-item"><p class="body-text mx-auto">A meticulously crafted sensory narrative, architected to guide attendees from a state of arrival to transcendence. This is a turnkey activation that transforms Sextant into an evening cultural hotspot.</p></div><div id="interactive-timeline-container" class="w-full mt-8 md:mt-12 reveal-item" style="--delay: 0.2s;"></div>` },
+                    { id: 'venue', title: 'Venue Intelligence', content: `<div class="text-center reveal-item"><p class="body-text mx-auto">Sextant Coffee at <a href="https://maps.google.com/?q=539+Valencia+St,+San+Francisco,+CA" target="_blank" class="text-teal-400 hover:underline">539 Valencia St</a> is more than a location; it's a cultural anchor. Positioned at the nexus of the Mission's creative and culinary scenes, it provides an authentic foundation to engage San Francisco's most discerning demographic.</p></div><div class="grid lg:grid-cols-2 gap-8 mt-8 md:mt-12 items-center"><div id="interactive-venue-layout" class="reveal-item" style="--delay: 0.2s;">
+                        <svg id="venue-blueprint" viewBox="0 0 800 450" class="bg-black/20 rounded-lg border border-gray-800">
+                            <!-- Main Walls -->
+                            <path d="M40 40 L760 40 L760 410 L40 410 Z" stroke="rgba(255,255,255,0.2)" stroke-width="4" fill="none"/>
+                            <path d="M40 40 L760 40 L760 410 L40 410 Z" stroke="rgba(255,255,255,0.4)" stroke-width="1" fill="none"/>
+                            
+                            <!-- L-Shape Bar (Rotated 90deg anti-clockwise) -->
+                            <path d="M42 42 V 250 H 70 V 70 H 250 V 42 Z" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+                            
+                            <!-- Entrance -->
+                            <path d="M650 410 V 360" stroke-width="8" stroke-linecap="round" stroke="var(--bg-secondary)"/>
+                            <text x="650" y="340" font-family="Inter" font-size="14" fill="rgba(255,255,255,0.4)" text-anchor="middle">ENTRANCE</text>
 
-                        <!-- Dance Floor -->
-                        <text x="450" y="250" font-family="ivypresto-display" font-size="32" fill="rgba(255,255,255,0.2)" text-anchor="middle" letter-spacing="3">DANCE FLOOR</text>
-                    </svg>
-                    <div id="hotspots-container"></div>
-                </div><div class="card reveal-item" style="--delay: 0.4s;"><h3 class="sub-heading text-emerald-400 mb-4 text-base md:text-xl">Strategic Advantages</h3><ul class="body-text text-sm space-y-3 list-disc list-inside"><li><strong>Narrative Authenticity:</strong> Sextant's Ethiopian coffee heritage offers a unique, defensible brand story.</li><li><strong>Spatial Efficiency:</strong> The L-shaped bar is operationally ideal for a DJ booth and managing flow.</li><li><strong>High-Value Accessibility:</strong> Steps from 16th St BART, removing friction for attendance.</li></ul><h3 class="sub-heading text-purple-400 my-4 pt-4 border-t border-gray-800 text-base md:text-xl">Target Demographics Profile</h3><ul class="body-text text-sm space-y-3 list-disc list-inside"><li><strong>Concentrated Audience:</strong> 32,000+ residents aged 25-44 in the Mission, with a median household income of $175k.</li><li><strong>Experience Spenders:</strong> This group allocates ~20% of discretionary income to experiences.</li><li><strong>Digital Natives:</strong> Hyper-connected and active in niche digital communities.</li></ul></div></div>` },
-                { id: 'team', title: 'Neural Nexus Activation', content: `<div class="slide-content-wrapper"><div class="text-center reveal-item"><p class="body-text mx-auto">This team is the engine. Each member is a critical node in a network designed for high-fidelity execution. Click a node to explore their function and growth trajectory within the Surface Tension ecosystem.</p></div><div id="circuit-board-container" class="mt-8 md:mt-12 reveal-item" style="--delay: 0.2s;"></div></div>` },
-                { 
-                    id: 'tasks', 
-                    title: 'Task Harmonics & Flow', 
-                    content: `<div class="text-center reveal-item"><p class="body-text mx-auto">This is our detailed operational roadmap, focusing on accountability and real-time execution for event day.</p></div><div id="task-planner" class="mt-8 md:mt-12 space-y-8"></div>` 
-                },
-                { 
-                    id: 'posters', 
-                    title: 'Poster Manifestation', 
-                    content: `<div class="pinterest-embed-wrapper reveal-item"><p class="body-text text-center mb-4">Our posters are not just advertisements; they are collectible artifacts. This is a live feed of our design references and inspiration.</p><div class="pinterest-embed-container"><a data-pin-do="embedBoard" data-pin-scale-height="800" data-pin-board-width="100%" href="https://www.pinterest.com/temapcy/surface-tension/digital-drip-posters/"></a></div></div>` 
-                },
-                { 
-                    id: 'lighting', 
-                    title: 'Luminance Codex', 
-                    content: `<div class="pinterest-embed-wrapper reveal-item"><p class="body-text text-center mb-4">Light is not an afterthought; it is a narrative tool. Our lighting strategy evolves with the sonic journey, sculpting the space and guiding the emotional arc of the night.</p><div class="pinterest-embed-container"><a data-pin-do="embedBoard" data-pin-scale-height="800" data-pin-board-width="100%" href="https://www.pinterest.com/temapcy/surface-tension/digital-drip-lighting/"></a></div></div>` 
-                },
-                { 
-                    id: 'projections', 
-                    title: 'Projection Consciousness', 
-                    content: `<div class="w-full max-w-6xl mx-auto">
-                                <div class="text-center reveal-item"><p class="body-text mx-auto mb-8">Our dynamic canvas. We will transform the venue's glass facade into a living entity using a single projector and layered fabrics to create a mesmerizing, pseudo-3D effect.</p></div>
-                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center reveal-item" style="--delay: 0.2s;">
-                                    <div class="space-y-6 order-2 lg:order-1">
-                                        <div>
-                                            <h4 class="sub-heading text-lg text-emerald-400 mb-2">Concept: The Living Membrane</h4>
-                                            <p class="body-text text-sm">We will create a multi-layered projection surface. A sheer, semi-transparent fabric like **White Organza or Voile** (under $50) will hang 1-2 feet in front of a taught, opaque **White Spandex** screen. A single, standard-throw projector from inside illuminates both, creating real parallax and a holographic, ethereal depth that shifts with the viewer's position.</p>
+                            <!-- Dance Floor -->
+                            <text x="450" y="250" font-family="ivypresto-display" font-size="32" fill="rgba(255,255,255,0.2)" text-anchor="middle" letter-spacing="3">DANCE FLOOR</text>
+                        </svg>
+                        <div id="hotspots-container"></div>
+                    </div><div class="card reveal-item" style="--delay: 0.4s;"><h3 class="sub-heading text-emerald-400 mb-4 text-base md:text-xl">Strategic Advantages</h3><ul class="body-text text-sm space-y-3 list-disc list-inside"><li><strong>Narrative Authenticity:</strong> Sextant's Ethiopian coffee heritage offers a unique, defensible brand story.</li><li><strong>Spatial Efficiency:</strong> The L-shaped bar is operationally ideal for a DJ booth and managing flow.</li><li><strong>High-Value Accessibility:</strong> Steps from 16th St BART, removing friction for attendance.</li></ul><h3 class="sub-heading text-purple-400 my-4 pt-4 border-t border-gray-800 text-base md:text-xl">Target Demographics Profile</h3><ul class="body-text text-sm space-y-3 list-disc list-inside"><li><strong>Concentrated Audience:</strong> 32,000+ residents aged 25-44 in the Mission, with a median household income of $175k.</li><li><strong>Experience Spenders:</strong> This group allocates ~20% of discretionary income to experiences.</li><li><strong>Digital Natives:</strong> Hyper-connected and active in niche digital communities.</li></ul></div></div>` },
+                    { id: 'team', title: 'Neural Nexus Activation', content: `<div class="slide-content-wrapper"><div class="text-center reveal-item"><p class="body-text mx-auto">This team is the engine. Each member is a critical node in a network designed for high-fidelity execution. Click a node to explore their function and growth trajectory within the Surface Tension ecosystem.</p></div><div id="circuit-board-container" class="mt-8 md:mt-12 reveal-item" style="--delay: 0.2s;"></div></div>` },
+                    { 
+                        id: 'tasks', 
+                        title: 'Task Harmonics & Flow', 
+                        content: `<div class="text-center reveal-item"><p class="body-text mx-auto">This is our detailed operational roadmap, focusing on accountability and real-time execution for event day.</p></div><div id="task-planner" class="mt-8 md:mt-12 space-y-8"></div>` 
+                    },
+                    { 
+                        id: 'posters', 
+                        title: 'Poster Manifestation', 
+                        content: `<div class="pinterest-embed-wrapper reveal-item"><p class="body-text text-center mb-4">Our posters are not just advertisements; they are collectible artifacts. This is a live feed of our design references and inspiration.</p><div class="pinterest-embed-container"><a data-pin-do="embedBoard" data-pin-scale-height="800" data-pin-board-width="100%" href="https://www.pinterest.com/temapcy/surface-tension/digital-drip-posters/"></a></div></div>` 
+                    },
+                    { 
+                        id: 'lighting', 
+                        title: 'Luminance Codex', 
+                        content: `<div class="pinterest-embed-wrapper reveal-item"><p class="body-text text-center mb-4">Light is not an afterthought; it is a narrative tool. Our lighting strategy evolves with the sonic journey, sculpting the space and guiding the emotional arc of the night.</p><div class="pinterest-embed-container"><a data-pin-do="embedBoard" data-pin-scale-height="800" data-pin-board-width="100%" href="https://www.pinterest.com/temapcy/surface-tension/digital-drip-lighting/"></a></div></div>` 
+                    },
+                    { 
+                        id: 'projections', 
+                        title: 'Projection Consciousness', 
+                        content: `<div class="w-full max-w-6xl mx-auto">
+                                    <div class="text-center reveal-item"><p class="body-text mx-auto mb-8">Our dynamic canvas. We will transform the venue's glass facade into a living entity using a single projector and layered fabrics to create a mesmerizing, pseudo-3D effect.</p></div>
+                                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center reveal-item" style="--delay: 0.2s;">
+                                        <div class="space-y-6 order-2 lg:order-1">
+                                            <div>
+                                                <h4 class="sub-heading text-lg text-emerald-400 mb-2">Concept: The Living Membrane</h4>
+                                                <p class="body-text text-sm">We will create a multi-layered projection surface. A sheer, semi-transparent fabric like **White Organza or Voile** (under $50) will hang 1-2 feet in front of a taught, opaque **White Spandex** screen. A single, standard-throw projector from inside illuminates both, creating real parallax and a holographic, ethereal depth that shifts with the viewer's position.</p>
+                                            </div>
+                                            <div>
+                                                <h4 class="sub-heading text-lg text-purple-400 mb-3">Visual Narrative Arc</h4>
+                                                <ul class="space-y-4 body-text text-sm">
+                                                    <li><strong>Phase 1: Stillness (5-7 PM)</strong><br>Slow, ambient visuals. Gentle, out-of-focus light caustics projected onto the back spandex layer. The front organza catches residual light, creating a soft, atmospheric glow. Minimal movement.</li>
+                                                    <li><strong>Phase 2: Flow (7-9 PM)</strong><br>Visuals become audio-reactive. Particle systems and abstract geometric lines appear, focused sharply on the front organza layer. The back layer displays blurred, complementary color fields, creating a distinct sense of depth.</li>
+                                                    <li><strong>Phase 3: Resonance (9-10 PM)</strong><br>Complex, multi-layered visuals. Moiré patterns are projected across both layers, creating interference and a sense of vibration. Fast-moving particle streams and sharp light forms give the illusion of visuals passing through the front layer and hitting the back.</li>
+                                                </ul>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h4 class="sub-heading text-lg text-purple-400 mb-3">Director's Brief: Pratt to Auguste</h4>
-                                            <p class="body-text text-sm italic">"Auguste, don't think of this as a screen. It's a membrane. The visuals must feel like they're breathing. We'll use audio-reactive particle systems that swirl and collect on the front layer, while more subtle, blurred color fields wash over the back. The content itself should create the 3D illusion: moiré patterns that interfere, caustic light effects that feel liquid, and focus-pulling simulations that shift between the fabric layers. It should be mesmerizing, organic, and feel alive."</p>
+                                        <div class="w-full aspect-video rounded-lg overflow-hidden bg-black border border-gray-800 order-1 lg:order-2">
+                                           <iframe id="projection-player" class="w-full h-full" src="https://player.vimeo.com/video/437382957?autoplay=1&loop=1&autopause=0&muted=1&title=0&byline=0&portrait=0" title="Projection Reference Player" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
                                         </div>
                                     </div>
-                                    <div class="w-full aspect-video rounded-lg overflow-hidden bg-black border border-gray-800 order-1 lg:order-2">
-                                       <iframe id="projection-player" class="w-full h-full" src="https://player.vimeo.com/video/437382957?autoplay=1&loop=1&autopause=0&muted=1&title=0&byline=0&portrait=0" title="Projection Reference Player" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
-                                    </div>
-                                </div>
-                            </div>` 
-                },
-                { 
-                    id: 'final', 
-                    background: `<canvas id="finale-canvas" class="fullscreen-canvas"></canvas>`,
-                    content: `<div class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 reveal-item"><h2 class="section-heading">in stillness, depth</h2><div class="mt-8 text-lg"><a href="https://surfacetension.co" target="_blank" class="text-teal-400 hover:underline">surfacetension.co</a><span class="mx-4 text-gray-600">•</span><a href="#" class="text-teal-400 hover:underline">Experience Preview</a></div></div>` 
-                },
-            ];
-            const timelineData = [
-                { time: '5:00 PM', title: 'Portal Opening', color: 'var(--teal)', description: 'Art & Community Showcase. Ambient textures, coffee & botanicals scent. Cold Coffee Creations served.', tasks: { guestExperience: 'Waseem manages guest list & Luma check-in. Nate greets guests, guides them to the art, and facilitates initial connections.', sonic: 'DJ Vixaa starts with low-key, ambient soundscapes (Texture Set 1). Volume at ~65dB. Pratt monitors vibe.', operations: 'Lorenzo ensures lighting is set to "Arrival" phase (warm, static). Bar serves Cold Coffee Creations only.' } },
-                { time: '6:00 PM', title: 'Signature Service', color: 'var(--teal)', description: 'The bar opens for our signature zero-proof cocktail menu. A moment to transition and mingle.', tasks: { guestExperience: 'Nate subtly informs guests that the full menu is available. Waseem monitors entry flow, ensuring no bottleneck.', sonic: 'Music remains ambient, but with slightly more rhythmic undertones introduced.', operations: 'Bar staff begins serving the full signature menu. Riley checks inventory.' } },
-                { time: '6:30 PM', title: 'Sonic Transition', color: 'var(--purple)', description: 'Energy subtly shifts as ambient sounds blend into the opening DJ rhythms.', tasks: { guestExperience: 'Nate encourages movement towards the main space. Check that seating areas are clear for dancing.', sonic: 'DJ Vixaa begins blending ambient textures into deep house (Transition Set). Tempo ~118 BPM. Volume slowly increases to ~75dB.', operations: 'Lorenzo initiates "Elevation" lighting phase, introducing subtle color washes synced to the new rhythm.' } },
-                { time: '8:15 PM', title: 'Peak Resonance', color: 'var(--purple)', description: 'The main DJ rave showcase reaches its zenith. Hypnotic house & techno with dynamic visuals.', tasks: { guestExperience: 'Nate & Ivan monitor crowd energy, ensuring safety and comfort. Capture key content moments.', sonic: 'DJ Vixaa is in the core of the main set. Tempo ~124 BPM. Volume at peak ~85dB. Full audio-visual synesthesia.', operations: 'Auguste manages live, audio-reactive projections. Lorenzo operates dynamic lighting cues. Bar is fully operational.' } },
-                { time: '9:30 PM', title: 'Harmonic Descent', color: 'var(--emerald)', description: 'Music gracefully tapers, allowing for reflection as crowds begin to disperse.', tasks: { guestExperience: 'Nate thanks departing guests and gathers anecdotal feedback. Waseem prepares for smooth exit flow.', sonic: 'DJ Vixaa transitions to a cool-down set (Downtempo / Ambient Techno). Volume decreases gradually.', operations: 'Lighting shifts to "Descent" phase, returning to warm, static washes. Bar begins last call.' } },
-                { time: '10:00 PM', title: 'Load Out', color: 'var(--text-secondary)', description: 'Event concludes. Venue load-out begins.', tasks: { guestExperience: 'Final guest sweep. All team members assist with initial clean-up.', sonic: 'House music off. A/V equipment breakdown begins.', operations: 'Riley manages vendor load-out. Lorenzo & Auguste break down their equipment. Full team effort on reset.' } },
-            ];
-            const teamData = [
-                { id: 'pratt', name: 'Pratt Majmudar', role: 'CEO & Creative Director', color: 'var(--emerald)', duties: "Drives the overall vision and strategy for the Surface Tension brand. Leads creative direction, sonic architecture, and secures strategic partnerships.", trajectory: "This is the foundational proof-of-concept for the Surface Tension brand. Success here validates the business model and provides a powerful case study for securing investment and larger-scale partnerships for future events.", tasks: ["Finalize brand partnerships", "Define sonic arc for DJ Vixaa", "Approve final event budget"] },
-                { id: 'diana', name: 'Diana Komakhidze', role: 'Co-Founder & Graphic Designer', color: 'var(--purple)', duties: "Establishes the core visual identity and brand DNA. Designs all foundational assets, from the logo to the visual language used in marketing and environmental design.", trajectory: "This project establishes your visual direction as the core of a new, influential cultural brand. You will move from a designer to a brand architect, creating a complete visual universe.", tasks: ["Design 'Invitation' poster", "Create motion graphics trailer", "Oversee all visual branding"] },
-                { id: 'riley', name: 'Riley Temple', role: 'Lead Producer & Operations', color: 'var(--yellow)', duties: "Manages vendor relationships (A/V, rentals, printers), logistical timelines, and equipment. Navigates all permitting, insurance, and legal compliance. Oversees budget execution.", trajectory: "This is an opportunity to master the production of high-touchpoint, unconventional events. By managing complexities, you build a unique skill set that positions you as a go-to producer for bespoke experiences.", tasks: ["Secure all city permits", "Finalize A/V vendor contracts", "Create day-of run-of-show"] },
-                { id: 'vixaa', name: 'DJ Vixaa', role: 'Featured Sonic Artist', color: 'var(--teal)', duties: "Crafts and performs the multi-hour narrative DJ set that forms the core of the event's auditory journey.", trajectory: "Evolve from a featured artist to a core sonic curator, demonstrating an advanced understanding of crowd dynamics and emotional arc, opening opportunities for co-curating larger-scale experiences.", tasks: ["Curate 3-hour narrative set", "Calibrate sound during tech rehearsal", "Perform live, adapting to the crowd"] },
-                { id: 'bill', name: 'Bill Saimos', role: 'Art Curator', color: 'var(--teal)', duties: 'Sources and liaises with local artists to be featured during the community showcase. Manages art installation and de-installation.', trajectory: 'Establish a reputation as a key curator at the intersection of the SF art and tech scenes, building a strong network of local talent.', tasks: ["Finalize artist selection", "Coordinate art installation", "Liaise with artists during event"] },
-                { id: 'auguste', name: 'Auguste', role: 'Projection Mapping Artist', color: 'var(--teal)', duties: 'Designs, creates, and executes all projection mapping visuals, including the temporary "guerilla" marketing projections and the live, audio-reactive visuals during the event.', trajectory: 'Showcase advanced skills in real-time generative art and environmental design, building a portfolio piece that attracts high-end clients for immersive installations.', tasks: ["Program audio-reactive visuals", "Execute 'guerilla' projections", "Operate live visuals during event"] },
-                { id: 'lorenzo', name: 'Lorenzo', role: 'Atmospherics & Analog Capture', color: 'var(--teal)', duties: "Designs and operates the lighting systems. Captures the event on analog film to create unique visual artifacts.", trajectory: "Move from executing lighting plans to become a lead lighting artist, using light and shadow to sculpt space and guide emotion in real-time.", tasks: ["Design 3-phase lighting plot", "Capture atmosphere on 16mm film", "Manage live lighting cues"] },
-                { id: 'nate', name: 'Nate', role: 'Community Host & Content', color: 'var(--teal)', duties: "Acts as the primary point of contact for guest experience, facilitating connections and gathering feedback. Captures social media content during the event.", trajectory: "This role evolves from hosting to experience architecture. Gain invaluable data for iterating on our social design and architecting the social flow of future events.", tasks: ["Develop guest interaction strategy", "Capture live social media content", "Act as primary host, gather feedback"] },
-                { id: 'waseem', name: 'Waseem', role: 'Access & Onboarding', color: 'var(--teal)', duties: "Manages the ticketing system and the guest check-in process on the day of the event, ensuring a seamless entry experience.", trajectory: "Scale your skills from front-of-house to designing entire operational systems for ticketing, communication, and community onboarding for more complex events.", tasks: ["Test Luma check-in system", "Manage front door & guest list", "Ensure seamless entry experience"] },
-                { id: 'ivan', name: 'Ivan', role: 'On-Site Synergist', color: 'var(--teal)', duties: "Acts as the central communication and resolution hub during the live event, managing team communication and solving any on-the-fly issues.", trajectory: "This role leverages your problem-solving into a lead production capacity, gaining unmatched expertise in managing live, multi-disciplinary artistic events.", tasks: ["Establish team comms protocol", "Act as floating problem-solver", "Coordinate with venue security"] },
-                { id: 'zoe', name: 'Zoe', role: 'Graphic Designer', color: 'var(--teal)', duties: "Develops tactical graphics (social media assets, menu details) based on Diana's core brand design. Manages print production workflow and quality control.", trajectory: "Expand your role from print production to leading the design and creation of all physical brand touchpoints, from material sourcing to final production.", tasks: ["Produce all social media assets", "Manage menu print production", "QA all print materials"] },
-            ];
-            const taskData = [
-                { 
-                    phase: 'Week 1-3: Pre-Production', 
-                    tasks: [
-                        { id: 1, title: 'Finalize Partnership Agreement', owner: 'riley', desc: 'Finalize and sign the partnership agreement with Sextant, locking in financial terms, responsibilities, and event date.', plan: 'Review final draft with Pratt, send to Sextant for signature via DocuSign. Store final copy in shared drive.' },
-                        { id: 2, title: 'Launch Microsite & Seed Password', owner: 'pratt', desc: 'Deploy the password-protected "STILLNESS" microsite to begin collecting the initial email list.', plan: 'Finish Webflow build. Deploy to Vercel. Begin leaking password in 3 targeted Discord communities and via 5 tastemaker Instagram accounts.' },
-                        { id: 3, title: 'Finalize Core Visual Identity', owner: 'diana', desc: 'Lock in the final logo, color palette, and typography suite for all brand assets.', plan: 'Present final direction to Pratt. Create a shared Figma file with all approved assets for the team to use.' },
-                        { id: 10, title: 'Artist Curation & Outreach', owner: 'bill', desc: 'Identify and secure 3-5 local artists to showcase their work at the event.', plan: 'Research local artists on Instagram and through gallery contacts. Send out initial outreach emails with a one-sheet about the event and the vision.' },
-                        { id: 4, title: 'Finalize Beverage Menu & Sponsorships', owner: 'pratt', desc: 'Lock in the full drink menu and secure in-kind sponsorships from beverage partners.', plan: 'Send final proposal to Ghia and Curious Elixirs. If no response by July 9th, move to backup options. Finalize ingredient order list for Sextant.' },
-                        { id: 5, title: 'Design A5 Posters & Digital Trailer', owner: 'diana', desc: 'Create the primary marketing assets for the campaign.', plan: 'Design the A5 poster based on "The Invitation" concept. Create a 30-second motion graphic trailer storyboard for Pratt\'s approval.' },
-                        { id: 6, title: 'Source Print & Fabric Vendors', owner: 'riley', desc: 'Identify and get quotes for poster printing and projection fabrics.', plan: 'Get quotes for A5 120lb matte card stock. Source vendors for Organza/Voile and Spandex fabric.' },
-                        { id: 11, title: 'Develop "Living Membrane" Visuals', owner: 'auguste', desc: 'Create the generative visual content for the two-layer projection system.', plan: 'Program audio-reactive particle systems in TouchDesigner. Develop caustic light patterns and abstract moiré effects. Test on sample fabrics.' },
-                        { id: 7, title: 'Execute "Guerrilla" Projection Test', owner: 'auguste', desc: 'Create real-world intrigue with ephemeral visual art.', plan: 'Scout 2-3 high-foot-traffic locations in the Mission and Hayes Valley. Execute late-night projections of the animated logo and portal visuals.' },
-                        { id: 8, title: 'Open Ticket Sales & Release Trailer', owner: 'diana', desc: 'Begin converting interest into attendees.', plan: 'Set up ticketing page on Luma. Release the 30s trailer on Instagram and push to the email list with the ticket link.' },
-                        { id: 12, title: 'Confirm Artist Logistics', owner: 'bill', desc: 'Finalize all details with selected artists.', plan: 'Confirm artwork dimensions, installation requirements, and load-in/load-out times with each artist.'}
-                    ]
-                },
-                { 
-                    phase: 'GO DAY: Load-in & Setup (2pm-5pm)', 
-                    tasks: [
-                        { id: 20, title: 'On-site producer, manage vendor arrivals', owner: 'riley', desc: 'Act as the primary point of contact for all incoming vendors (A/V, Security). Ensure they have clear instructions and access.' },
-                        { id: 21, title: 'Supervise art installation with Bill', owner: 'riley', desc: 'Work with Bill to ensure all artwork is placed correctly and safely according to the floor plan.' },
-                        { id: 22, title: 'Establish team comms channel', owner: 'ivan', desc: 'Set up and test the team communication channel (e.g., Signal group or Walkie-talkies). Ensure all team members are connected and know protocol.' },
-                        { id: 23, title: 'Install & calibrate projection system', owner: 'auguste', desc: 'Mount the projector and hang the two fabric layers. Map the projection area using Resolume/TouchDesigner and calibrate for focus and color.' },
-                        { id: 24, title: 'Run tech rehearsal with DJ', owner: 'auguste', desc: 'Connect to DJ Vixaa\'s audio output to test and fine-tune the audio-reactivity of the visuals.' },
-                        { id: 25, title: 'Set up and test lighting plot', owner: 'pratt', desc: 'Direct Lorenzo on the placement and focus of all lighting fixtures. Run through the pre-programmed lighting phases.' },
-                        { id: 26, title: 'Full sound system check', owner: 'vixaa', desc: 'Perform a full sound check, testing all speakers, levels, and connections to ensure optimal audio quality throughout the venue.' },
-                        { id: 27, title: 'Set up check-in station', owner: 'waseem', desc: 'Prepare the check-in area with laptops for Luma, signage, and any wristbands or materials for guests.' },
-                        { id: 28, title: 'Final check on art placement', owner: 'bill', desc: 'Do a final walkthrough to ensure all art is displayed effectively and is well-lit.' },
-                        { id: 29, title: 'Walkthrough with security team', owner: 'ivan', desc: 'Brief the security team on the event flow, key locations, and emergency protocols.' },
-                    ]
-                },
-                { 
-                    phase: 'GO DAY: Live Event (5pm-10pm)', 
-                    tasks: [
-                        { id: 30, title: 'Manage entry flow & ticketing', owner: 'waseem', desc: 'Oversee the check-in process, handle any guest list issues, and ensure a smooth, welcoming entry experience.' },
-                        { id: 31, title: 'Host guests & facilitate connections', owner: 'nate', desc: 'Act as the primary host. Greet attendees, introduce people to each other, and monitor the overall vibe of the space.' },
-                        { id: 32, title: 'Capture live social media content', owner: 'nate', desc: 'Capture high-quality photos and videos for Instagram Stories and Reels, focusing on the atmosphere and key moments.' },
-                        { id: 33, title: 'Perform live VJ set', owner: 'auguste', desc: 'Operate the "Living Membrane" visuals in real-time, adapting the intensity and style to match the music and energy of the crowd.' },
-                        { id: 34, title: 'Operate dynamic lighting', owner: 'lorenzo', desc: 'Execute the lighting plan, transitioning between phases (Arrival, Elevation, Peak, Descent) in sync with the DJ set.' },
-                        { id: 35, title: 'Perform narrative DJ set', owner: 'vixaa', desc: 'Guide the sonic journey of the evening, reading the room and adjusting the energy as planned in the sonic arc.' },
-                        { id: 36, title: 'Host VIPs & direct team', owner: 'pratt', desc: 'Engage with key partners and guests. Provide high-level creative direction to the team as needed throughout the night.' },
-                        { id: 37, title: 'Co-host & document for brand', owner: 'diana', desc: 'Support Pratt in hosting duties and document the event from a brand perspective for the future portfolio.' },
-                        { id: 38, title: 'Capture atmospheric film shots', owner: 'lorenzo', desc: 'Use the 16mm camera to capture unique, textural footage of the event, focusing on light, shadow, and movement.' },
-                        { id: 39, title: 'Act as floating problem-solver', owner: 'ivan', desc: 'Be the go-to person for any on-the-fly issues, from technical glitches to guest needs. Support all team members.' },
-                        { id: 40, title: 'Monitor bar operations', owner: 'riley', desc: 'Keep an eye on the bar staff, manage inventory levels, and ensure service is running smoothly.' },
-                        { id: 41, 'title': 'Liaise with artists', owner: 'bill', desc: 'Check in with the featured artists throughout the event to ensure they are comfortable and their work is being well-received.' }
-                    ]
-                },
-                { 
-                    phase: 'GO DAY: Breakdown (10pm-12am)', 
-                    tasks: [
-                        { id: 50, title: 'Manage guest departure', owner: 'nate', desc: 'Ensure a smooth and safe exit for all guests. Thank them for coming and gather any final feedback.' },
-                        { id: 51, title: 'Supervise vendor load-out', owner: 'riley', desc: 'Oversee the breakdown and removal of all rented equipment, starting with A/V.' },
-                        { id: 52, title: 'Breakdown projection system', owner: 'auguste', desc: 'Carefully dismantle the fabric screens and pack the projector and media server.' },
-                        { id: 53, title: 'Breakdown lighting equipment', owner: 'lorenzo', desc: 'Pack up all lighting fixtures and controllers.' },
-                        { id: 54, title: 'Coordinate art de-installation', owner: 'riley', desc: 'Work with Bill and the artists to ensure all artwork is safely taken down and packed.' },
-                        { id: 55, title: 'Final venue sweep', owner: 'ivan', desc: 'Conduct a final walkthrough of the venue to ensure it is clean and nothing has been left behind.' },
-                        { id: 56, title: 'Secure rented equipment', owner: 'riley', desc: 'Confirm all rented items are accounted for and securely stored for pickup.' },
-                        { id: 57, title: 'Process final payments', owner: 'riley', desc: 'Handle any outstanding payments for on-site staff or vendors as needed.' },
-                    ]
+                                </div>` 
+                    },
+                    { 
+                        id: 'final', 
+                        background: `<canvas id="finale-canvas" class="fullscreen-canvas"></canvas>`,
+                        content: `<div class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 reveal-item"><h2 class="section-heading">in stillness, depth</h2><div class="mt-8 text-lg"><a href="https://surfacetension.co" target="_blank" class="text-teal-400 hover:underline">surfacetension.co</a><span class="mx-4 text-gray-600">•</span><a href="#" class="text-teal-400 hover:underline">Experience Preview</a></div></div>` 
+                    },
+                ],
+                timelineData: [
+                    { time: '5:00 PM', title: 'Portal Opening', color: 'var(--teal)', description: 'Art & Community Showcase. Ambient textures, coffee & botanicals scent. Cold Coffee Creations served.', tasks: { guestExperience: 'Waseem manages guest list & Luma check-in. Nate greets guests, guides them to the art, and facilitates initial connections.', sonic: 'DJ Vixaa starts with low-key, ambient soundscapes (Texture Set 1). Volume at ~65dB. Pratt monitors vibe.', operations: 'Lorenzo ensures lighting is set to "Arrival" phase (warm, static). Bar serves Cold Coffee Creations only.' } },
+                    { time: '6:00 PM', title: 'Signature Service', color: 'var(--teal)', description: 'The bar opens for our signature zero-proof cocktail menu. A moment to transition and mingle.', tasks: { guestExperience: 'Nate subtly informs guests that the full menu is available. Waseem monitors entry flow, ensuring no bottleneck.', sonic: 'Music remains ambient, but with slightly more rhythmic undertones introduced.', operations: 'Bar staff begins serving the full signature menu. Riley checks inventory.' } },
+                    { time: '6:30 PM', title: 'Sonic Transition', color: 'var(--purple)', description: 'Energy subtly shifts as ambient sounds blend into the opening DJ rhythms.', tasks: { guestExperience: 'Nate encourages movement towards the main space. Check that seating areas are clear for dancing.', sonic: 'DJ Vixaa begins blending ambient textures into deep house (Transition Set). Tempo ~118 BPM. Volume slowly increases to ~75dB.', operations: 'Lorenzo initiates "Elevation" lighting phase, introducing subtle color washes synced to the new rhythm.' } },
+                    { time: '8:15 PM', title: 'Peak Resonance', color: 'var(--purple)', description: 'The main DJ rave showcase reaches its zenith. Hypnotic house & techno with dynamic visuals.', tasks: { guestExperience: 'Nate & Ivan monitor crowd energy, ensuring safety and comfort. Capture key content moments.', sonic: 'DJ Vixaa is in the core of the main set. Tempo ~124 BPM. Volume at peak ~85dB. Full audio-visual synesthesia.', operations: 'Auguste manages live, audio-reactive projections. Lorenzo operates dynamic lighting cues. Bar is fully operational.' } },
+                    { time: '9:30 PM', title: 'Harmonic Descent', color: 'var(--emerald)', description: 'Music gracefully tapers, allowing for reflection as crowds begin to disperse.', tasks: { guestExperience: 'Nate thanks departing guests and gathers anecdotal feedback. Waseem prepares for smooth exit flow.', sonic: 'DJ Vixaa transitions to a cool-down set (Downtempo / Ambient Techno). Volume decreases gradually.', operations: 'Lighting shifts to "Descent" phase, returning to warm, static washes. Bar begins last call.' } },
+                    { time: '10:00 PM', title: 'Load Out', color: 'var(--text-secondary)', description: 'Event concludes. Venue load-out begins.', tasks: { guestExperience: 'Final guest sweep. All team members assist with initial clean-up.', sonic: 'House music off. A/V equipment breakdown begins.', operations: 'Riley manages vendor load-out. Lorenzo & Auguste break down their equipment. Full team effort on reset.' } },
+                ],
+                teamData: [
+                    { id: 'pratt', name: 'Pratt Majmudar', role: 'CEO & Creative Director', color: 'var(--emerald)', duties: "Drives the overall vision and strategy for the Surface Tension brand. Leads creative direction, sonic architecture, and secures strategic partnerships.", trajectory: "This is the foundational proof-of-concept for the Surface Tension brand. Success here validates the business model and provides a powerful case study for securing investment and larger-scale partnerships for future events.", tasks: ["Finalize brand partnerships", "Define sonic arc for DJ Vixaa", "Approve final event budget"] },
+                    { id: 'diana', name: 'Diana Komakhidze', role: 'Co-Founder & Graphic Designer', color: 'var(--purple)', duties: "Establishes the core visual identity and brand DNA. Designs all foundational assets, from the logo to the visual language used in marketing and environmental design.", trajectory: "This project establishes your visual direction as the core of a new, influential cultural brand. You will move from a designer to a brand architect, creating a complete visual universe.", tasks: ["Design 'Invitation' poster", "Create motion graphics trailer", "Oversee all visual branding"] },
+                    { id: 'riley', name: 'Riley Temple', role: 'Lead Producer & Operations', color: 'var(--yellow)', duties: "Manages vendor relationships (A/V, rentals, printers), logistical timelines, and equipment. Navigates all permitting, insurance, and legal compliance. Oversees budget execution.", trajectory: "This is an opportunity to master the production of high-touchpoint, unconventional events. By managing complexities, you build a unique skill set that positions you as a go-to producer for bespoke experiences.", tasks: ["Secure all city permits", "Finalize A/V vendor contracts", "Create day-of run-of-show"] },
+                    { id: 'vixaa', name: 'DJ Vixaa', role: 'Featured Sonic Artist', color: 'var(--teal)', duties: "Crafts and performs the multi-hour narrative DJ set that forms the core of the event's auditory journey.", trajectory: "Evolve from a featured artist to a core sonic curator, demonstrating an advanced understanding of crowd dynamics and emotional arc, opening opportunities for co-curating larger-scale experiences.", tasks: ["Curate 3-hour narrative set", "Calibrate sound during tech rehearsal", "Perform live, adapting to the crowd"] },
+                    { id: 'bill', name: 'Bill Saimos', role: 'Art Curator', color: 'var(--teal)', duties: 'Sources and liaises with local artists to be featured during the community showcase. Manages art installation and de-installation.', trajectory: 'Establish a reputation as a key curator at the intersection of the SF art and tech scenes, building a strong network of local talent.', tasks: ["Finalize artist selection", "Coordinate art installation", "Liaise with artists during event"] },
+                    { id: 'auguste', name: 'Auguste', role: 'Projection Mapping Artist', color: 'var(--teal)', duties: 'Designs, creates, and executes all projection mapping visuals, including the temporary "guerilla" marketing projections and the live, audio-reactive visuals during the event.', trajectory: 'Showcase advanced skills in real-time generative art and environmental design, building a portfolio piece that attracts high-end clients for immersive installations.', tasks: ["Program audio-reactive visuals", "Execute 'guerilla' projections", "Operate live visuals during event"] },
+                    { id: 'lorenzo', name: 'Lorenzo', role: 'Atmospherics & Analog Capture', color: 'var(--teal)', duties: "Designs and operates the lighting systems. Captures the event on analog film to create unique visual artifacts.", trajectory: "Move from executing lighting plans to become a lead lighting artist, using light and shadow to sculpt space and guide emotion in real-time.", tasks: ["Design 3-phase lighting plot", "Capture atmosphere on 16mm film", "Manage live lighting cues"] },
+                    { id: 'nate', name: 'Nate', role: 'Community Host & Content', color: 'var(--teal)', duties: "Acts as the primary point of contact for guest experience, facilitating connections and gathering feedback. Captures social media content during the event.", trajectory: "This role evolves from hosting to experience architecture. Gain invaluable data for iterating on our social design and architecting the social flow of future events.", tasks: ["Develop guest interaction strategy", "Capture live social media content", "Act as primary host, gather feedback"] },
+                    { id: 'waseem', name: 'Waseem', role: 'Access & Onboarding', color: 'var(--teal)', duties: "Manages the ticketing system and the guest check-in process on the day of the event, ensuring a seamless entry experience.", trajectory: "Scale your skills from front-of-house to designing entire operational systems for ticketing, communication, and community onboarding for more complex events.", tasks: ["Test Luma check-in system", "Manage front door & guest list", "Ensure seamless entry experience"] },
+                    { id: 'ivan', name: 'Ivan', role: 'On-Site Synergist', color: 'var(--teal)', duties: "Acts as the central communication and resolution hub during the live event, managing team communication and solving any on-the-fly issues.", trajectory: "This role leverages your problem-solving into a lead production capacity, gaining unmatched expertise in managing live, multi-disciplinary artistic events.", tasks: ["Establish team comms protocol", "Act as floating problem-solver", "Coordinate with venue security"] },
+                    { id: 'zoe', name: 'Zoe', role: 'Graphic Designer', color: 'var(--teal)', duties: "Develops tactical graphics (social media assets, menu details) based on Diana's core brand design. Manages print production workflow and quality control.", trajectory: "Expand your role from print production to leading the design and creation of all physical brand touchpoints, from material sourcing to final production.", tasks: ["Produce all social media assets", "Manage menu print production", "QA all print materials"] },
+                ],
+                taskData: [
+                    { 
+                        phase: 'Week 1-3: Pre-Production', 
+                        tasks: [
+                            { id: 1, title: 'Finalize Partnership Agreement', owner: 'riley', desc: 'Finalize and sign the partnership agreement with Sextant, locking in financial terms, responsibilities, and event date.', plan: 'Review final draft with Pratt, send to Sextant for signature via DocuSign. Store final copy in shared drive.' },
+                            { id: 2, title: 'Launch Microsite & Seed Password', owner: 'pratt', desc: 'Deploy the password-protected "STILLNESS" microsite to begin collecting the initial email list.', plan: 'Finish Webflow build. Deploy to Vercel. Begin leaking password in 3 targeted Discord communities and via 5 tastemaker Instagram accounts.' },
+                            { id: 3, title: 'Finalize Core Visual Identity', owner: 'diana', desc: 'Lock in the final logo, color palette, and typography suite for all brand assets.', plan: 'Present final direction to Pratt. Create a shared Figma file with all approved assets for the team to use.' },
+                            { id: 10, title: 'Artist Curation & Outreach', owner: 'bill', desc: 'Identify and secure 3-5 local artists to showcase their work at the event.', plan: 'Research local artists on Instagram and through gallery contacts. Send out initial outreach emails with a one-sheet about the event and the vision.' },
+                            { id: 4, title: 'Finalize Beverage Menu & Sponsorships', owner: 'pratt', desc: 'Lock in the full drink menu and secure in-kind sponsorships from beverage partners.', plan: 'Send final proposal to Ghia and Curious Elixirs. If no response by July 9th, move to backup options. Finalize ingredient order list for Sextant.' },
+                            { id: 5, title: 'Design A5 Posters & Digital Trailer', owner: 'diana', desc: 'Create the primary marketing assets for the campaign.', plan: 'Design the A5 poster based on "The Invitation" concept. Create a 30-second motion graphic trailer storyboard for Pratt\'s approval.' },
+                            { id: 6, title: 'Source Print & Fabric Vendors', owner: 'riley', desc: 'Identify and get quotes for poster printing and projection fabrics.', plan: 'Get quotes for A5 120lb matte card stock. Source vendors for Organza/Voile and Spandex fabric.' },
+                            { id: 11, title: 'Develop "Living Membrane" Visuals', owner: 'auguste', desc: 'Create the generative visual content for the two-layer projection system.', plan: 'Program audio-reactive particle systems in TouchDesigner. Develop caustic light patterns and abstract moiré effects. Test on sample fabrics.' },
+                            { id: 7, title: 'Execute "Guerrilla" Projection Test', owner: 'auguste', desc: 'Create real-world intrigue with ephemeral visual art.', plan: 'Scout 2-3 high-foot-traffic locations in the Mission and Hayes Valley. Execute late-night projections of the animated logo and portal visuals.' },
+                            { id: 8, title: 'Open Ticket Sales & Release Trailer', owner: 'diana', desc: 'Begin converting interest into attendees.', plan: 'Set up ticketing page on Luma. Release the 30s trailer on Instagram and push to the email list with the ticket link.' },
+                            { id: 12, title: 'Confirm Artist Logistics', owner: 'bill', desc: 'Finalize all details with selected artists.', plan: 'Confirm artwork dimensions, installation requirements, and load-in/load-out times with each artist.'}
+                        ]
+                    },
+                    { 
+                        phase: 'GO DAY: Load-in & Setup (2pm-5pm)', 
+                        tasks: [
+                            { id: 20, title: 'On-site producer, manage vendor arrivals', owner: 'riley', desc: 'Act as the primary point of contact for all incoming vendors (A/V, Security). Ensure they have clear instructions and access.' },
+                            { id: 21, title: 'Supervise art installation with Bill', owner: 'riley', desc: 'Work with Bill to ensure all artwork is placed correctly and safely according to the floor plan.' },
+                            { id: 22, title: 'Establish team comms channel', owner: 'ivan', desc: 'Set up and test the team communication channel (e.g., Signal group or Walkie-talkies). Ensure all team members are connected and know protocol.' },
+                            { id: 23, title: 'Install & calibrate projection system', owner: 'auguste', desc: 'Mount the projector and hang the two fabric layers. Map the projection area using Resolume/TouchDesigner and calibrate for focus and color.' },
+                            { id: 24, title: 'Run tech rehearsal with DJ', owner: 'auguste', desc: 'Connect to DJ Vixaa\'s audio output to test and fine-tune the audio-reactivity of the visuals.' },
+                            { id: 25, title: 'Set up and test lighting plot', owner: 'pratt', desc: 'Direct Lorenzo on the placement and focus of all lighting fixtures. Run through the pre-programmed lighting phases.' },
+                            { id: 26, title: 'Full sound system check', owner: 'vixaa', desc: 'Perform a full sound check, testing all speakers, levels, and connections to ensure optimal audio quality throughout the venue.' },
+                            { id: 27, title: 'Set up check-in station', owner: 'waseem', desc: 'Prepare the check-in area with laptops for Luma, signage, and any wristbands or materials for guests.' },
+                            { id: 28, title: 'Final check on art placement', owner: 'bill', desc: 'Do a final walkthrough to ensure all art is displayed effectively and is well-lit.' },
+                            { id: 29, title: 'Walkthrough with security team', owner: 'ivan', desc: 'Brief the security team on the event flow, key locations, and emergency protocols.' },
+                        ]
+                    },
+                    { 
+                        phase: 'GO DAY: Live Event (5pm-10pm)', 
+                        tasks: [
+                            { id: 30, title: 'Manage entry flow & ticketing', owner: 'waseem', desc: 'Oversee the check-in process, handle any guest list issues, and ensure a smooth, welcoming entry experience.' },
+                            { id: 31, title: 'Host guests & facilitate connections', owner: 'nate', desc: 'Act as the primary host. Greet attendees, introduce people to each other, and monitor the overall vibe of the space.' },
+                            { id: 32, title: 'Capture live social media content', owner: 'nate', desc: 'Capture high-quality photos and videos for Instagram Stories and Reels, focusing on the atmosphere and key moments.' },
+                            { id: 33, title: 'Perform live VJ set', owner: 'auguste', desc: 'Operate the "Living Membrane" visuals in real-time, adapting the intensity and style to match the music and energy of the crowd.' },
+                            { id: 34, title: 'Operate dynamic lighting', owner: 'lorenzo', desc: 'Execute the lighting plan, transitioning between phases (Arrival, Elevation, Peak, Descent) in sync with the DJ set.' },
+                            { id: 35, title: 'Perform narrative DJ set', owner: 'vixaa', desc: 'Guide the sonic journey of the evening, reading the room and adjusting the energy as planned in the sonic arc.' },
+                            { id: 36, title: 'Host VIPs & direct team', owner: 'pratt', desc: 'Engage with key partners and guests. Provide high-level creative direction to the team as needed throughout the night.' },
+                            { id: 37, title: 'Co-host & document for brand', owner: 'diana', desc: 'Support Pratt in hosting duties and document the event from a brand perspective for the future portfolio.' },
+                            { id: 38, title: 'Capture atmospheric film shots', owner: 'lorenzo', desc: 'Use the 16mm camera to capture unique, textural footage of the event, focusing on light, shadow, and movement.' },
+                            { id: 39, title: 'Act as floating problem-solver', owner: 'ivan', desc: 'Be the go-to person for any on-the-fly issues, from technical glitches to guest needs. Support all team members.' },
+                            { id: 40, title: 'Monitor bar operations', owner: 'riley', desc: 'Keep an eye on the bar staff, manage inventory levels, and ensure service is running smoothly.' },
+                            { id: 41, 'title': 'Liaise with artists', owner: 'bill', desc: 'Check in with the featured artists throughout the event to ensure they are comfortable and their work is being well-received.' }
+                        ]
+                    },
+                    { 
+                        phase: 'GO DAY: Breakdown (10pm-12am)', 
+                        tasks: [
+                            { id: 50, title: 'Manage guest departure', owner: 'nate', desc: 'Ensure a smooth and safe exit for all guests. Thank them for coming and gather any final feedback.' },
+                            { id: 51, title: 'Supervise vendor load-out', owner: 'riley', desc: 'Oversee the breakdown and removal of all rented equipment, starting with A/V.' },
+                            { id: 52, title: 'Breakdown projection system', owner: 'auguste', desc: 'Carefully dismantle the fabric screens and pack the projector and media server.' },
+                            { id: 53, title: 'Breakdown lighting equipment', owner: 'lorenzo', desc: 'Pack up all lighting fixtures and controllers.' },
+                            { id: 54, title: 'Coordinate art de-installation', owner: 'riley', desc: 'Work with Bill and the artists to ensure all artwork is safely taken down and packed.' },
+                            { id: 55, title: 'Final venue sweep', owner: 'ivan', desc: 'Conduct a final walkthrough of the venue to ensure it is clean and nothing has been left behind.' },
+                            { id: 56, title: 'Secure rented equipment', owner: 'riley', desc: 'Confirm all rented items are accounted for and securely stored for pickup.' },
+                            { id: 57, title: 'Process final payments', owner: 'riley', desc: 'Handle any outstanding payments for on-site staff or vendors as needed.' },
+                        ]
+                    }
+                ],
+                venueHotspotData: {
+                    bar: { title: "L-Shape Bar & DJ Booth", text: "The flipped L-shaped bar is the command center, housing the DJ booth for a seamless sonic and service experience.", pos: { x: '10%', y: '15%' }, color: 'var(--yellow)' },
+                    lounge: { title: "Digital Drip Lounge", text: "A dedicated zone for our signature non-alcoholic cocktails. A space for flavor exploration and conversation.", pos: { x: '80%', y: '70%'} , color: 'var(--teal)'},
+                    socialHub: { title: "Social Hub", text: "The main area for guests to connect and engage before the music elevates. Fosters community and interaction.", pos: { x: '15%', y: '70%'} , color: 'var(--purple)'},
+                    projection: { title: "Projection Mapping Wall", text: "This entire surface will be a dynamic canvas for our visual artists, transforming the space throughout the night.", pos: { x: '90%', y: '50%'} , color: 'rgba(255,255,255,0.7)'}
                 }
-            ];
-            const venueHotspotData = {
-                bar: { title: "L-Shape Bar & DJ Booth", text: "The flipped L-shaped bar is the command center, housing the DJ booth for a seamless sonic and service experience.", pos: { x: '10%', y: '15%' }, color: 'var(--yellow)' },
-                lounge: { title: "Digital Drip Lounge", text: "A dedicated zone for our signature non-alcoholic cocktails. A space for flavor exploration and conversation.", pos: { x: '80%', y: '70%'} , color: 'var(--teal)'},
-                socialHub: { title: "Social Hub", text: "The main area for guests to connect and engage before the music elevates. Fosters community and interaction.", pos: { x: '15%', y: '70%'} , color: 'var(--purple)'},
-                projection: { title: "Projection Mapping Wall", text: "This entire surface will be a dynamic canvas for our visual artists, transforming the space throughout the night.", pos: { x: '90%', y: '50%'} , color: 'rgba(255,255,255,0.7)'}
             };
             
             // --- UTILITY FUNCTIONS ---
@@ -869,45 +907,55 @@
                 }
                 renderCircuitBoardTeam(container) {
                     if (!container) return;
+                    
+                    const teamLayout = { pratt: { pos: { x: 40, y: 15 }, tier: 'leadership' }, diana: { pos: { x: 60, y: 15 }, tier: 'leadership' }, riley: { pos: { x: 50, y: 35 }, tier: 'leadership' }, zoe: { pos: { x: 78, y: 22 }, tier: 'creative' }, vixaa: { pos: { x: 50, y: 60 }, tier: 'performance' }, auguste: { pos: { x: 20, y: 35 }, tier: 'creative' }, lorenzo: { pos: { x: 80, y: 45 }, tier: 'creative' }, bill:  { pos: { x: 20, y: 60 }, tier: 'curation' }, nate:  { pos: { x: 80, y: 70 }, tier: 'community' }, waseem:{ pos: { x: 35, y: 85 }, tier: 'community' }, ivan:  { pos: { x: 65, y: 85 }, tier: 'community' } };
+                    this.nodePositions = {};
+
+                    // Desktop view
                     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
                     svg.id = 'circuit-svg';
                     svg.setAttribute('viewBox', '0 0 100 100');
                     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
                     
-                    const fragment = document.createDocumentFragment();
-                    fragment.appendChild(svg);
-                    
-                    const teamLayout = { pratt: { pos: { x: 40, y: 15 }, tier: 'leadership' }, diana: { pos: { x: 60, y: 15 }, tier: 'leadership' }, riley: { pos: { x: 50, y: 35 }, tier: 'leadership' }, zoe: { pos: { x: 78, y: 22 }, tier: 'creative' }, vixaa: { pos: { x: 50, y: 60 }, tier: 'performance' }, auguste: { pos: { x: 20, y: 35 }, tier: 'creative' }, lorenzo: { pos: { x: 80, y: 45 }, tier: 'creative' }, bill:  { pos: { x: 20, y: 60 }, tier: 'curation' }, nate:  { pos: { x: 80, y: 70 }, tier: 'community' }, waseem:{ pos: { x: 35, y: 85 }, tier: 'community' }, ivan:  { pos: { x: 65, y: 85 }, tier: 'community' } };
-                    this.nodePositions = {};
-                    
+                    // Mobile view
+                    const mobileContainer = document.createElement('div');
+                    mobileContainer.className = 'team-node-container-mobile';
+
                     this.teamData.forEach((member, i) => {
+                        // Desktop Node
                         if (teamLayout[member.id]) {
-                            const { pos, tier } = teamLayout[member.id];
+                            const { pos } = teamLayout[member.id];
                             this.nodePositions[member.id] = pos;
-                            fragment.appendChild(this.createTeamNode(member, `${pos.x}%`, `${pos.y}%`, tier, i));
+                            const desktopNode = this.createTeamNode(member, `${pos.x}%`, `${pos.y}%`, i);
+                            desktopNode.classList.add('hidden', 'md:flex');
+                            container.appendChild(desktopNode);
                         }
+                        // Mobile Node
+                        const mobileNode = this.createTeamNode(member, null, null, i);
+                        mobileNode.classList.add('md:hidden');
+                        mobileContainer.appendChild(mobileNode);
                     });
                     
-                    container.innerHTML = '';
-                    container.appendChild(fragment);
+                    container.appendChild(mobileContainer);
+                    container.appendChild(svg);
 
                     const connections = [ { from: 'pratt', to: 'riley' }, { from: 'diana', to: 'riley' }, { from: 'diana', to: 'zoe' }, { from: 'riley', to: 'vixaa' }, { from: 'riley', to: 'auguste' }, { from: 'riley', to: 'lorenzo' }, { from: 'pratt', to: 'bill' }, { from: 'pratt', to: 'nate' }, { from: 'riley', to: 'waseem' }, { from: 'riley', to: 'ivan' } ];
-                    const svgTarget = container.querySelector('#circuit-svg');
                     connections.forEach((conn, i) => {
-                        this.drawConnection(svgTarget, this.nodePositions[conn.from], this.nodePositions[conn.to], conn, i);
+                        this.drawConnection(svg, this.nodePositions[conn.from], this.nodePositions[conn.to], conn, i);
                     });
                 }
-                createTeamNode(member, x, y, tier, index) {
+                createTeamNode(member, x, y, index) {
                     const node = document.createElement('div');
-                    const isLeadership = tier === 'leadership';
-                    node.className = `team-node card clickable-card ${isLeadership ? 'leadership-node' : ''}`;
-                    node.style.left = x;
-                    node.style.top = y;
+                    node.className = 'team-node card clickable-card';
+                    if (x && y) {
+                       node.style.left = x;
+                       node.style.top = y;
+                    }
                     node.style.borderColor = member.color;
                     node.dataset.memberId = member.id;
                     node.style.setProperty('--shadow-color', member.color);
                     node.style.setProperty('--delay', `${index * 0.1}s`);
-                    node.innerHTML = `<h4 class="font-bold text-sm pointer-events-none">${member.name}</h4><p class="text-xs pointer-events-none" style="color:${member.color};">${member.role}</p>`;
+                    node.innerHTML = `<div class="flex-shrink-0"><img class="w-12 h-12 rounded-full" src="https://placehold.co/80x80/${member.color.substring(1)}/000000?text=${member.name.charAt(0)}" alt="${member.name}"></div><div class="text-left"><h4 class="font-bold text-sm">${member.name}</h4><p class="text-xs" style="color:${member.color};">${member.role}</p></div>`;
                     return node;
                 }
                 drawConnection(svg, fromPos, toPos, conn, index) {
@@ -1169,7 +1217,7 @@
                 }
             }
             
-            new App({ slideData, timelineData, teamData, taskData, venueHotspotData });
+            new App(data);
         });
     </script>
 </body>
