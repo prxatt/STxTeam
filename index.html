@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <!-- IMPORTANT: For Vercel deployment, rename this file to "index.html" to resolve the 404 error. -->
     <title>Surface Tension: Team Deck</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://use.typekit.net">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://use.typekit.net/crp5oma.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -345,6 +348,8 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- DATA DEFINITIONS ---
             const slideData = [
                 { 
                     id: 'cover', 
@@ -522,6 +527,7 @@
                 projection: { title: "Projection Mapping Wall", text: "This entire surface will be a dynamic canvas for our visual artists, transforming the space throughout the night.", pos: { x: '90%', y: '50%'} , color: 'rgba(255,255,255,0.7)'}
             };
             
+            // --- UTILITY FUNCTIONS ---
             const debounce = (func, delay) => {
                 let timeout;
                 return (...args) => {
@@ -530,6 +536,7 @@
                 };
             };
             
+            // --- THREE.JS CLASSES ---
             class ThreeJSAnimation {
                 constructor(canvasId) {
                     this.canvas = document.getElementById(canvasId);
@@ -778,13 +785,9 @@
                 }
             }
 
+            // --- MAIN APP CLASS ---
             class App {
-                constructor(data) {
-                    this.slideData = data.slideData;
-                    this.timelineData = data.timelineData;
-                    this.teamData = data.teamData;
-                    this.taskData = data.taskData;
-                    this.venueHotspotData = data.venueHotspotData;
+                constructor() {
                     this.currentSlide = 0;
                     this.isAnimating = false;
                     this.activeAnimations = {};
@@ -814,7 +817,7 @@
                 }
                 renderSlides() {
                     if (!this.dom.container) return;
-                    const slidesHtml = this.slideData.map((data, index) => {
+                    const slidesHtml = slideData.map((data, index) => {
                         const isPinterestSlide = data.id === 'posters' || data.id === 'lighting';
                         const wrapperClass = isPinterestSlide ? '' : 'slide-content-wrapper';
                         
@@ -857,7 +860,7 @@
                      const fragment = document.createDocumentFragment();
                      const bar = document.createElement('div');
                      bar.className = 'timeline-bar';
-                     bar.innerHTML = this.timelineData.map((item, index) => `
+                     bar.innerHTML = timelineData.map((item, index) => `
                         <div class="timeline-card" data-index="${index}">
                             <div class="time-indicator" style="color:${item.color}">${item.time}</div>
                             <div class="title-indicator">${item.title}</div>
@@ -878,7 +881,7 @@
                     const teamLayout = { pratt: { pos: { x: 40, y: 15 }, tier: 'leadership' }, diana: { pos: { x: 60, y: 15 }, tier: 'leadership' }, riley: { pos: { x: 50, y: 35 }, tier: 'leadership' }, zoe: { pos: { x: 78, y: 22 }, tier: 'creative' }, vixaa: { pos: { x: 50, y: 60 }, tier: 'performance' }, auguste: { pos: { x: 20, y: 35 }, tier: 'creative' }, lorenzo: { pos: { x: 80, y: 45 }, tier: 'creative' }, bill:  { pos: { x: 20, y: 60 }, tier: 'curation' }, nate:  { pos: { x: 80, y: 70 }, tier: 'community' }, waseem:{ pos: { x: 35, y: 85 }, tier: 'community' }, ivan:  { pos: { x: 65, y: 85 }, tier: 'community' } };
                     this.nodePositions = {};
                     
-                    this.teamData.forEach((member, i) => {
+                    teamData.forEach((member, i) => {
                         if (teamLayout[member.id]) {
                             const { pos, tier } = teamLayout[member.id];
                             this.nodePositions[member.id] = pos;
@@ -932,7 +935,7 @@
                 renderTaskPlanner(container) {
                     if(!container) return;
                     const ownerColors = { pratt: 'var(--emerald)', diana: 'var(--purple)', riley: 'var(--yellow)', vixaa: 'var(--teal)', lorenzo: 'var(--teal)', zoe: 'var(--teal)', waseem:'var(--teal)', nate:'var(--teal)',ivan:'var(--teal)', bill: 'var(--teal)', auguste: 'var(--teal)' };
-                    container.innerHTML = `<div class="task-planner-grid">${this.taskData.map(phase => `
+                    container.innerHTML = `<div class="task-planner-grid">${taskData.map(phase => `
                         <div class="task-phase-block reveal-item">
                             <h3 class="sub-heading text-base text-purple-400 mb-4">${phase.phase}</h3>
                             <div class="space-y-1">${phase.tasks.map(task => `
@@ -946,7 +949,7 @@
                 renderVenueHotspots(container) {
                     if(!container) return;
                     const fragment = document.createDocumentFragment();
-                    Object.entries(this.venueHotspotData).forEach(([key, data]) => {
+                    Object.entries(venueHotspotData).forEach(([key, data]) => {
                         const hotspot = document.createElement('div');
                         hotspot.className = 'venue-hotspot clickable-card';
                         hotspot.dataset.area = key;
@@ -1010,7 +1013,7 @@
                     
                     const paths = circuitBoard.querySelectorAll(`.circuit-path[data-from="${memberId}"], .circuit-path[data-to="${memberId}"]`);
                     const dataFlows = circuitBoard.querySelectorAll(`.data-flow[data-from="${memberId}"], .data-flow[data-to="${memberId}"]`);
-                    const memberData = this.teamData.find(m => m.id === memberId);
+                    const memberData = teamData.find(m => m.id === memberId);
                     
                     if(memberData) {
                         paths.forEach(p => {
@@ -1033,7 +1036,7 @@
                 }
 
                 goTo(index, isInitial = false) {
-                    if (this.isAnimating || (index >= this.slideData.length) || (index === this.currentSlide && !isInitial)) return;
+                    if (this.isAnimating || (index >= slideData.length) || (index === this.currentSlide && !isInitial)) return;
                     this.isAnimating = true;
                     
                     if (this.activeAnimations[this.currentSlide]) {
@@ -1050,10 +1053,12 @@
                     this.initAnimationForSlide(this.currentSlide);
                     this.updateUI();
 
-                    if ((this.slideData[this.currentSlide].id === 'posters' || this.slideData[this.currentSlide].id === 'lighting') && typeof window.PinUtils !== 'undefined') {
+                    if ((slideData[this.currentSlide].id === 'posters' || slideData[this.currentSlide].id === 'lighting') && typeof window.PinUtils !== 'undefined') {
                         // The Pinterest script sometimes needs a moment after the slide is visible to find the anchor tag.
                         setTimeout(() => {
-                           window.PinUtils.build();
+                            if (typeof window.PinUtils !== 'undefined') {
+                                window.PinUtils.build();
+                            }
                         }, 100); 
                     }
                     
@@ -1064,8 +1069,8 @@
                         }
                     }, 800);
                 }
-                next() { this.goTo((this.currentSlide + 1) % this.slideData.length); }
-                prev() { this.goTo((this.currentSlide - 1 + this.slideData.length) % this.slideData.length); }
+                next() { this.goTo((this.currentSlide + 1) % slideData.length); }
+                prev() { this.goTo((this.currentSlide - 1 + slideData.length) % slideData.length); }
                 handleKeydown(e) {
                     if (this.dom.modalContainer.classList.contains('visible')) {
                         if (e.key === 'Escape') this.hideModal();
@@ -1075,9 +1080,9 @@
                     if (e.key === 'ArrowLeft') this.prev();
                 }
                 updateUI() {
-                    this.dom.dots.innerHTML = this.slideData.map((_, index) => `<div class="nav-dot ${index === this.currentSlide ? 'active' : ''}" data-index="${index}"></div>`).join('');
-                    this.dom.indicator.textContent = `${String(this.currentSlide + 1).padStart(2, '0')} / ${this.slideData.length}`;
-                    const isFirstOrLast = this.currentSlide === 0 || this.currentSlide === this.slideData.length - 1;
+                    this.dom.dots.innerHTML = slideData.map((_, index) => `<div class="nav-dot ${index === this.currentSlide ? 'active' : ''}" data-index="${index}"></div>`).join('');
+                    this.dom.indicator.textContent = `${String(this.currentSlide + 1).padStart(2, '0')} / ${slideData.length}`;
+                    const isFirstOrLast = this.currentSlide === 0 || this.currentSlide === slideData.length - 1;
                     this.dom.header.style.opacity = isFirstOrLast ? '0' : '1';
                 }
                 initAnimationForSlide(index) {
@@ -1086,7 +1091,7 @@
                         this.activeAnimations[index].setActive(true);
                         return;
                      }
-                     const slideId = this.slideData[index]?.id;
+                     const slideId = slideData[index]?.id;
                      const canvas = this.slides[index].querySelector('canvas');
                      if (!canvas) return;
                      const AnimationClass = { 'cover': CoverAnimation, 'philosophy': PhilosophyAnimation, 'experience': RippleAnimation, 'final': FinaleAnimation }[slideId];
@@ -1096,7 +1101,7 @@
                      }
                 }
                 showTeamModal(memberId) {
-                    const data = this.teamData.find(m => m.id === memberId);
+                    const data = teamData.find(m => m.id === memberId);
                     if (!data) return;
                     this.dom.modalTitle.innerHTML = `<span style="color:${data.color};">${data.name}</span>`;
                     const tasksHtml = (data.tasks || []).map(task => `
@@ -1122,15 +1127,15 @@
                     this.dom.modalContainer.classList.add('visible');
                 }
                 showTaskModal(taskId) {
-                    const task = this.taskData.flatMap(p => p.tasks).find(t => String(t.id) === taskId);
+                    const task = taskData.flatMap(p => p.tasks).find(t => String(t.id) === taskId);
                     if (!task) return;
-                    const ownerData = this.teamData.find(m => m.id === task.owner);
+                    const ownerData = teamData.find(m => m.id === task.owner);
                     this.dom.modalTitle.innerHTML = `<span style="color:${ownerData ? ownerData.color : 'white'};">${task.title}</span>`;
                     this.dom.modalBody.innerHTML = `<div class="space-y-6 body-text text-sm"><div><h4 class="font-semibold text-base text-gray-300 mb-1">Description</h4><p class="text-gray-400">${task.desc || 'Details to be added.'}</p></div><div><h4 class="font-semibold text-base text-gray-300 mb-1">Execution Plan</h4><p class="text-gray-400">${task.plan || 'Plan to be added.'}</p></div><div><h4 class="font-semibold text-base text-gray-300 mb-1">Comments</h4><textarea class="w-full bg-gray-900/50 rounded p-2 text-sm border border-gray-700" rows="3" placeholder="Add comments here..."></textarea></div></div>`;
                     this.dom.modalContainer.classList.add('visible');
                 }
                 showTimelineModal(index) {
-                    const data = this.timelineData[index];
+                    const data = timelineData[index];
                     if (!data) return;
                     this.dom.modalTitle.innerHTML = `<span style="color:${data.color};">${data.title}</span> <span class="text-gray-400 font-sans text-lg ml-4">${data.time}</span>`;
                     this.dom.modalBody.innerHTML = `
@@ -1145,7 +1150,7 @@
                     this.dom.modalContainer.classList.add('visible');
                 }
                 showVenueModal(areaId) {
-                    const data = this.venueHotspotData[areaId];
+                    const data = venueHotspotData[areaId];
                     if (!data) return;
                     this.dom.modalTitle.innerHTML = `<span style="color:${data.color};">${data.title}</span>`;
                     this.dom.modalBody.innerHTML = `<p class="body-text">${data.text}</p>`;
